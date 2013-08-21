@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="js/lib/jquery-1.9.1.js"></script>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=true"></script>
+		<script src="js/lib/underscore.js"></script>
+    <script src="js/lib/jquery-ui.js"></script>
+    <script src="js/controllers/main.js"></script>
+		
+		<link rel="stylesheet" href="css/styles.css">
+		
+  </head>
+  <body scroll="no">
+    
+		<div id="set">
+      <div class="pageBlock" id="yblock">
+				<div class="header">location info</div>
+			</div>
+      <div class="pageBlock" id="rblock">
+				<div class="header">select location</div>
+        <div class="placeSearch" id="nearbySearch">here</div>
+				<div class="placeSearch" id="otherSearch"><input type="text" placeholder="address"></input></div>
+				<div displayed"none" id="searchResults"></div>
+      </div>
+      <div class="pageBlock" id="gblock">
+      	<div class="header">map</div>
+      </div>
+      <div class="pageBlock" id="bblock">
+				<div class="header">user info</div>
+			</div>
+		</div>
+  
+	  <script type="text/template" id="listLocationTemplate">
+		  <div class="listedLocation" id="listedLocation_i">
+		    <div class="listedName"><%= name %></div>
+				<div class="listedInfo"><%= vicinity %></div>
+				<div class="listedInfo"><%= opening_hours.open_now %>, <%= price_level %>, <%= rating %></div>
+		  </div>
+		</script>
+		
+		<script type="text/template" id="locationInfoTemplate">
+			<div class="ycontent, locationInfoOptions">
+				<div class="nowVisiting">start visit</div>
+				<div class="wantToGo">want to go</div>
+				<div class="rateReview">rate/ review</div>
+				<div class="seeData">see data</div>
+			</div>
+			<div class="ycontent, locationPhotoContainer"><img class="locationPhoto" src="location_URL"></img></div>
+			<div class="ycontent, locationInfoContainer">
+			  <div><%= name %></div>
+				<div><%= formatted_address %></div>
+				<div><%= formatted_phone_number %></div>
+				<div><%= website %></div>
+				<div></div>
+			</div>
+		</script>
+  </body>
+</html>
+	

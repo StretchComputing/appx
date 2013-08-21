@@ -1,0 +1,190 @@
+body{
+	overflow:hidden; 
+	background-color:#000
+}
+
+#set{
+	position:absolute; 
+	top:0vh; 
+	left:0vh
+}
+
+.pageBlock{
+	position:absolute; 
+	width:100vw; 
+	height:100vh 
+}
+
+#yblock{
+	background-color:#ff6; 
+	top:-97vh; 
+	left:3vw
+}
+
+#rblock{
+	background-color:#f66; 
+	top:-97vh; 
+	left:-97vw
+}
+
+#gblock{
+	background-color:#6f6; 
+	top:3vh; 
+	left:-97vw
+}
+
+#bblock{
+	background-color:#66f; 
+	top:3vh; 
+	left:3vw
+}
+
+.header{
+	position:absolute;
+	width:88%;
+	height:5%;
+	padding-top:1%;
+	padding-bottom:1%;
+	top:4%;
+	left:6%;
+	text-align:center;
+	background-color:#222;
+	color:#fff;
+	font:15px courier,monospace;
+	z-index:2
+}
+
+.placeSearch{
+	position:absolute; 
+	width:42%;
+	height:5%;
+	padding-top:1%;
+	padding-bottom:1%;
+	text-align:center;
+	background-color:#222;
+	color:#fff;
+	font:15px courier,monospace;
+	z-index:1
+}
+
+#nearbySearch{
+	top:12%; 
+	left:6%;
+}
+
+#otherSearch{
+	top:12%;
+	left:52%;
+}
+
+#otherSearch input{
+	width:70%;
+	background-color:#000;
+	color:#fff;
+	font:8px courier,monospace
+}
+
+#searchResults{
+	position:absolute;
+	width:86%;
+	height:0%;
+	padding-top:1%;
+	padding-bottom:1%;
+	padding-left:1%;
+	padding-right:1%;
+	top:20%;
+	left:6%;
+	background-color:#222;
+	color:#fff;
+	overflow-y:auto;
+	z-index:2
+}
+
+.listedLocation{
+	position:relative;
+	width:95%;
+	padding-top:1%;
+	padding-bottom:1%;
+	padding-left:1%;
+	padding-right:1%;
+	background-color:#a22;
+	color:#fff;
+	border:1px solid #222;	
+}
+
+.listedName{
+	position:relative;
+	font:12px courier,monospace;
+}
+
+.listedInfo{
+	position:relative;
+	font:8px courier,monospace;
+}
+
+.selectedLocation{
+	background-color:#ccc;
+	color:#000;
+}
+
+.locationInfoOptions{
+	position:absolute;
+	width:27%;
+	height:40%;
+	padding-top:1%;
+	padding-bottom:1%;
+	padding-left:1%;
+	padding-right:1%;
+	top:12%;
+	left:6%;
+	background-color:#222;
+}
+.locationInfoOptions div{
+	position:relative;
+	width:98%;
+	height:23%;
+	padding-top:1%;
+	padding-bottom:1%;
+	padding-left:1%;
+	padding-right:1%;
+	background-color:#ff2;
+	color:#222;
+	font:14px courier,monospace;
+	text-align:center;
+	border:1px solid #222
+}
+
+.locationPhotoContainer{
+	position:absolute;
+	top:12%;
+	left:36%;
+	width:56%;
+	height:40%;
+	padding-top:1%;
+	padding-bottom:1%;
+	padding-left:1%;
+	padding-right:1%;
+	background-color:#222;
+	text-align:center;
+}
+
+.locationPhoto{
+	max-width:98%;
+  max-height:80%;
+}
+
+.locationInfoContainer{
+	position:absolute;
+	width:86%;
+	height:40%;
+	padding-top:1%;
+	padding-bottom:1%;
+	padding-left:1%;
+	padding-right:1%;
+	top:55%;
+	left:6%;
+	background-color:#222;
+	color:#fff;
+	overflow-y:auto;
+	z-index:2
+}
