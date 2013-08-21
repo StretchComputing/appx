@@ -59,9 +59,6 @@ $(function(){
     toPageY()
   });	
 	
-	// variable for current location
-	var here;
-	
   // getLocation: void -> {lat,lng,bool}
   // Gets current location using html5 geolocation
   var getLocation = function(){
@@ -146,7 +143,7 @@ $(function(){
   $('#nearbySearch').click(function() {
 		var fake = new google.maps.LatLng(41.869727,-87.80585889999999);
     var service = new google.maps.places.PlacesService(document.getElementById('gblock'));
-    service.nearbySearch({location: fake,
+    service.nearbySearch({location: here,
 													rankBy:google.maps.places.RankBy.DISTANCE,
 												  types:['bakery','bar','cafe','restaurant']}, 
                          function(data,status) {
