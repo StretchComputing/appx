@@ -2,47 +2,103 @@ var here;// variable for current location
 var listedLocations; //variable for list of locations that google returns
 var selectedLocation;
 var geocoder; //variable for geocoder
+var pages;
+var drag = { 	posi:  {x:0,y:0},
+             	timei: 0,
+       			 	posf:  {x:0,y:0},
+             	timef: 0  };
 
 $(function(){
+	
+	pages = { page:'r',
+						diffH:window.innerWidth * 0.03,
+						diffV:window.innerHeight * 0.03,
+					  thresholdH:$('#rblock').width() * -0.5,
+						thresholdV:$('#rblock').height() * -0.5};
 	
   //Navigation between pages
   //  -able: drag and revert back, change page with clicks
   //  -later: swipe between pages (momentum sensitive)
-
-  $('#set').draggable({ revert:true, scroll:false });
-				
-  var page = 'b';
-  var drag = { posi:  {x:0,y:0},
- 	             timei: 0,
-	       			 posf:  {x:0,y:0},
-	             timef: 0 };
+ 
+	var dragStartHandler = function(){
+		var pos = $('#set').offset();
+		pages.isDrag = true;
+		drag.posi.x = pos.left;
+		drag.posi.y = pos.top;
+	};
 	
+	var dragDragHandler = function(){
+		
+	};
+	
+	var dragStopHandler = function(){
+		var pos = $('#set').offset();
+		pages.page = '';
+		drag.posf.x = pos.left;
+		drag.posf.y = pos.top;
+		
+		if(drag.posf.x < pages.thresholdH){
+			if(drag.posf.y < pages.thresholdV){
+				toPageB();
+			}else{
+				toPageY();
+			};
+		}else{
+		  if(drag.posf.y < pages.thresholdV){
+		  	toPageG();
+		  }else{
+		  	toPageR();
+		  };
+		}
+	};
+	
+  $('#set').draggable({ revert:false, 
+												scroll:false,
+												start:dragStartHandler,
+											  drag:dragDragHandler,
+											  stop:dragStopHandler });
 	
   var toPageR = function() {
-    if(page !== 'r'){
-      $('#set').animate({top:'94vh',left:'92vw'}, 300);
-      page = 'r';
+    if(pages.page !== 'r'){
+			var bpos = $('#rblock').offset();
+			var spos = $('#set').offset();
+      $('#set').animate({ top: spos.top - bpos.top,
+													left: spos.left - bpos.left}, {duration:300,
+																												 complete:function(){$('#set').stop(true,false);}});
+      pages.page = 'r';
     }
   };
 	
   var toPageG = function() {
-    if(page !== 'g'){
-      $('#set').animate({top:'0vh',left:'92vw'}, 300);
-      page = 'g';
+    if(pages.page !== 'g'){
+			var bpos = $('#gblock').offset();
+			var spos = $('#set').offset();
+      $('#set').animate({	top: spos.top - bpos.top + pages.diffV,
+													left: spos.left - bpos.left }, {duration:300,
+																													complete:function(){$('#set').stop(true,false);}});
+      pages.page = 'g';
     }
   };
 	
   var toPageB = function() {
-    if(page !== 'b'){
-      $('#set').animate({top:'0vh',left:'0vw'}, 200);
-      page = 'b';
+    if(pages.page !== 'b'){
+			var bpos = $('#bblock').offset();
+			var spos = $('#set').offset();
+      $('#set').animate({	top: spos.top - bpos.top + pages.diffV,
+													left: spos.left - bpos.left + pages.diffH }, {duration:300,
+																																				complete:function(){$('#set').stop(true,false);}});
+      pages.page = 'b';
     }
   };
 	
   var toPageY = function() {
-    if(page !== 'y'){
-      $('#set').animate({top:'94vh',left:'0vw'}, 200);
-      page = 'y';
+    if(pages.page !== 'y'){
+			var bpos = $('#yblock').offset();
+			var spos = $('#set').offset();
+      $('#set').animate({ top: spos.top - bpos.top,
+													left: spos.left - bpos.left + pages.diffH }, {duration:300,
+																																				complete:function(){$('#set').stop(true,false);}});
+      pages.page = 'y';
     }
   };
 			
@@ -203,10 +259,10 @@ $(function(){
 		} else {
 			selectedPhotoURL = selectedLocation.icon;
 		}
-		
-		templatedLocationInfo = templatedLocationInfo.replace('location_URL',selectedPhotoURL);
-		$('.ycontent').remove();
-		$('#yblock').append(templatedLocationInfo);	
+
+		$('.locationInfoContainer').empty();
+		$('.locationPhoto').attr('src',selectedPhotoURL)
+		$('.locationInfoContainer').append(templatedLocationInfo);
 		toPageY();
 	};
 		
