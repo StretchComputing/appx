@@ -113,7 +113,12 @@ $(function(){
   });
   $('#yblock').click(function() {
     toPageY()
-  });	
+  });
+	
+	//this is necessary because touch-punch prevented input from being accessed
+	$('input').bind('click', function(){
+	    $(this).focus();
+	});
 	
   // getLocation: void -> {lat,lng,bool}
   // Gets current location using html5 geolocation
@@ -242,6 +247,7 @@ $(function(){
 				service.getDetails({reference:selectedLocation.reference},
 			                   	function(data,status){
 														selectedLocation = data; //assign to more detailed version
+														fixLocation();
 														showLocationInfo(selectedLocation);
 			                   	});
 					
@@ -249,8 +255,130 @@ $(function(){
 		});
 	};
 	
+	// used to format some fields and fill in missing fields 
+	var fixLocation = function(){
+		
+		//for appx format specific input
+		selectedLocation.appxForm = {};
+		
+		//location should have a name, probably not necessary
+		if(!selectedLocation.name){
+			selectedLocation.name = "name unavailable";
+		}
+		
+		if(!selectedLocation.formatted_address){
+			selectedLocation.formatted_address = selectedLocation.vicinity + " (approximately)";
+		}
+		
+		if(!selectedLocation.formatted_phone_number){
+			selectedLocation.formatted_phone_number = "(phone number unknown)";
+		}
+		
+		if(!selectedLocation.website){
+			selectedLocation.website = "(website unknown)";
+		}
+		
+		if(!selectedLocation.rating){
+			selectedLocation.rating = "(rating unknown)";
+		}
+		
+		if(!selectedLocation.reviews){
+			selectedLocation.reviews = [{author_name:"(no reviews for this location)",text:""}];
+		}
+		
+		if(!selectedLocation.price_level){
+			selectedLocation.appxForm.price = "(price level unknown)";
+		}else{
+			var p = selectedLocation.price_level;
+			switch(p){
+			case 1:
+				selectedLocation.appxForm.price = "$";
+				break;
+			case 2:
+				selectedLocation.appxForm.price = "$$";
+				break;
+			case 3:
+				selectedLocation.appxForm.price = "$$$";
+				break;
+			case 4:
+				selectedLocation.appxForm.price = "$$$$";
+				break;
+			}
+		}
+		
+		if(!selectedLocation.opening_hours){
+			selectedLocation.appxForm.isOpen = "(open status unknown)";
+			selectedLocation.appxForm.regularHours = "(hours of operation unknown)";
+		}else{
+			selectedLocation.appxForm.isOpen = (selectedLocation.opening_hours.open_now ? "open now" : "not open now");
+			selectedLocation.appxForm.regularHours = formatRegularHours(selectedLocation.opening_hours.periods);
+		}
+	};
+	
+	var formatRegularHours = function(periods){
+		var times = "";
+		for(var pIndex = 0; pIndex < periods.length; pIndex++){
+			var d = periods[pIndex].open.day;
+			var s = periods[pIndex].open.time;
+			var f;
+			
+			var day;
+			var startHour;
+			var startMin;
+			var startAmpm;
+			var endHour;
+			var endMin;
+			var endAmpm;
+			
+			switch(d){
+			case 0:
+				day = "sun: ";
+				break;
+			case 1:
+				day = "mon: ";
+				break;
+			case 2:
+				day = "tue: ";
+				break;
+			case 3:
+				day = "wed: ";
+				break;
+			case 4:
+				day = "thu: ";
+				break;
+			case 5:
+				day = "fri: ";
+				break;
+			case 6:
+				day = "sat: ";
+				break;
+			}
+			
+			startHour = Math.floor(s%1200/100);
+			startHour = startHour == 0 ? 12 : startHour;
+			
+			startMin = s%100;
+			
+			startAmpm = (Math.floor(s/1200) % 2) < 1 ? 'am' : 'pm';
+			
+			f = s + (100 * periods[pIndex].open.hours) + (periods[pIndex].open.minutes);
+			
+			endHour = Math.floor(f%1200/100);
+			endHour = endHour == 0 ? 12 : endHour;
+			
+			endMin = f%100;
+			
+			endAmpm = (Math.floor(f/1200) % 2) < 1 ? 'am' : 'pm'
+			
+			times += day + startHour + ':' + startMin + startAmpm + ' - ' + endHour + ':' + endMin + endAmpm + '</br>';
+		}
+		
+		return times;
+	};
+	
 	var showLocationInfo = function(location) {
-		var locationInfoTemplate = _.template($('#locationInfoTemplate').html());	
+		var locationInfoTemplate = _.template($('#locationInfoTemplate').html());
+		var reviewTemplate = _.template($('#reviewTemplate').html());
 		var templatedLocationInfo = locationInfoTemplate(location);
 		var selectedPhotoURL;
 		
@@ -263,7 +391,11 @@ $(function(){
 		$('.locationInfoContainer').empty();
 		$('.locationPhoto').attr('src',selectedPhotoURL)
 		$('.locationInfoContainer').append(templatedLocationInfo);
+		for(var rIndex = 0; rIndex < location.reviews.length; rIndex++){
+			$('.locationInfoContainer .locationInfoSet .locationReviewInfo').append(reviewTemplate(location.reviews[rIndex]));
+		}
+		$('.locationInfoSet').draggable({axis:'x'});
 		toPageY();
 	};
-		
+	
 });

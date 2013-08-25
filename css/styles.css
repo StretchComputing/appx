@@ -15,7 +15,7 @@ body{
 	background-color:#000
 }
 
-.wrapper{
+.setWrapper{
 	overflow:hidden;
 	position:absolute;
 	top:0vh;
@@ -210,7 +210,49 @@ body{
 	left:6%;
 	background-color:#222;
 	color:#fff;
-	overflow-y:auto;
-	font:14px courier,monospace;
+	overflow-x:hidden;
 	z-index:2
+}
+
+.locationInfoSet{
+	position:absolute;
+	width:400%;
+	height:100%;
+	top:0%;
+	left:0%;
+}
+
+.locationGeneralInfo{
+	position:absolute;
+	width:25%;
+	height:100%;
+	top:0%;
+	left:0%;
+	border-right:1px solid #ff6;
+	font:14px courier,monospace
+}
+
+.locationHoursInfo{
+	position:absolute;
+	width:25%;
+	height:100%;
+	top:0%;
+	left:25%;
+	border-left:1px solid #ff6;
+	border-right:1px solid #ff6;
+	font:14px courier,monospace
+}
+
+.locationReviewInfo{
+	position:absolute;
+	width:25%;
+	height:100%;
+	top:0%;
+	left:50%;
+	border-left:1px solid #ff6;
+	font:14px courier,monospace
+}
+
+.reviewText{
+	margin-left:5em;
 }

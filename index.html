@@ -16,7 +16,7 @@
   </head>
   <body scroll="no">
 		
-    <div class="wrapper">
+    <div class="setWrapper">
 			<div id="set">
 				
 				<div class="pageBlock" id="yblock">
@@ -60,12 +60,30 @@
 		</script>
 		
 		<script type="text/template" id="locationInfoTemplate">
-			<div><%= name %></div>
-		  <div><%= formatted_address %></div>
-			<div><%= formatted_phone_number %></div>
-			<div><%= website %></div>
-			<div></div>
+			<div class="locationInfoSet">
+				<div class="locationGeneralInfo">
+					<div class="infoName"><%= name %></div>
+		  		<div><%= formatted_address %></div>
+					<div><%= rating %></div>
+					<div><%= appxForm.price %></div>
+					<div><%= appxForm.isOpen %></div>
+					<div><%= formatted_phone_number %></div>
+					<div><%= website %></div>
+					<div></div>
+				</div>
+				<div class="locationHoursInfo">
+				  <div><%= appxForm.regularHours %></div>
+				</div>
+				<div class="locationReviewInfo">
+				</div>
+			</div>
 		</script>
+		
+		<script type="text/template" id="reviewTemplate">
+			<div class="reviewAuthor"><%= author_name %></div>
+			<div class="reviewText"><%= text %></div>
+		</script>
+		
   </body>
 </html>
 	
