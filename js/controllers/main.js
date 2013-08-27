@@ -8,6 +8,7 @@ var drag = { 	posi:  {x:0,y:0},
        			 	posf:  {x:0,y:0},
              	timef: 0  };
 var map; //for the google map display
+var mapMarkers = [];
 
 $(function(){
 	
@@ -206,12 +207,33 @@ $(function(){
 		}
 		
 		addSelectListedLocationEvents();
+		addMapMarkers();
 	};
 	
 	var getIndexById = function(selectedId){
 		var PatternId = /\d+/;
 		return selectedId.match(PatternId);
 	}
+	
+	var addMapMarkers = function(){
+		//First clear any existing markers and remove reference to them
+		if(mapMarkers){
+			for(i in mapMarkers){
+				mapMarkers[i].setMap(null);
+			}
+			mapMarkers = [];
+		}
+		//now add new markers
+		for(i in listedLocations){
+			mapMarkers[i] = new google.maps.Marker({
+				position:listedLocations[i].geometry.location,
+				map:map
+			});
+			if(i == 0){
+				map.panTo(listedLocations[i].geometry.location);
+			}
+		}
+	};
 	
   //Get Google places info: locations nearby
   //
@@ -409,8 +431,26 @@ $(function(){
 		for(var rIndex = 0; rIndex < location.reviews.length; rIndex++){
 			$('#locationInfoContainer .locationInfoSet .locationReviewInfo').append(reviewTemplate(location.reviews[rIndex]));
 		}
-		$('.locationInfoSet').draggable({axis:'x'});
+		$('.locationInfoSet').draggable({axis:'x',
+																		 scroll:false,
+																		 stop:locationInfoScrollStopHandler});
 		toPageY();
+	};
+	
+	var locationInfoScrollStopHandler = function(){
+		var w = $('.locationInfoSet').width();
+		var posX = $('.locationInfoSet').offset().left;
+		var posXNew;
+		if(posX > -w/8){
+			posXNew = 0;
+		}else if(posX > (-3*w)/8){
+			posXNew = -w/4;
+		}else if(posX > (-5*w)/8){
+			posXNew = -w/2;
+		}else{
+			posXNew = (-3*w)/4;
+		}
+		$('.locationInfoSet').animate({left:posXNew},300);
 	};
 	
 });
