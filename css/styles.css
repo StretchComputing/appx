@@ -198,7 +198,7 @@ body{
   max-height:80%;
 }
 
-.locationInfoContainer{
+#locationInfoContainer{
 	position:absolute;
 	width:86%;
 	height:40%;
@@ -255,4 +255,13 @@ body{
 
 .reviewText{
 	margin-left:5em;
+}
+
+#map{
+	position:absolute;
+	width:88%;
+	height:83%;
+	top:12%;
+	left:6%;
+	background-color:#222;
 }

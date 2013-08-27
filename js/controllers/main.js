@@ -7,6 +7,7 @@ var drag = { 	posi:  {x:0,y:0},
              	timei: 0,
        			 	posf:  {x:0,y:0},
              	timef: 0  };
+var map; //for the google map display
 
 $(function(){
 	
@@ -54,6 +55,7 @@ $(function(){
 	
   $('#set').draggable({ revert:false, 
 												scroll:false,
+												cancel:"#map",
 												start:dragStartHandler,
 											  drag:dragDragHandler,
 											  stop:dragStopHandler });
@@ -141,6 +143,19 @@ $(function(){
   }; 
   getLocation();
 	
+	//initialize google map, will start centered on current location until search is made
+	var initializeMap = function(){
+		var fake = new google.maps.LatLng(41.869727,-87.80585889999999);
+		var mapOptions = {
+			center:fake,
+			zoom:15,
+			mapTypeId:google.maps.MapTypeId.ROADMAP
+		};
+		map = new google.maps.Map(document.getElementById("map"),mapOptions);
+	};
+	initializeMap();
+	
+	//adds missing fields to search results to prevent errors
 	var fixResults = function(){
 		var len = listedLocations.length;
 		
@@ -203,7 +218,7 @@ $(function(){
   //
   $('#nearbySearch').click(function() {
 		var fake = new google.maps.LatLng(41.869727,-87.80585889999999);
-    var service = new google.maps.places.PlacesService(document.getElementById('gblock'));
+    var service = new google.maps.places.PlacesService(document.getElementById('searchResults'));
     service.nearbySearch({location: here,
 													rankBy:google.maps.places.RankBy.DISTANCE,
 												  types:['bakery','bar','cafe','restaurant']}, 
@@ -220,7 +235,7 @@ $(function(){
 		var address = $(this).val();
 		geocoder.geocode({'address':address}, function(data,status){
 			var there = data[0].geometry.location;
-	    var service = new google.maps.places.PlacesService(document.getElementById('gblock'));
+	    var service = new google.maps.places.PlacesService(document.getElementById('searchResults'));
 	    service.nearbySearch({location: there,
 														rankBy:google.maps.places.RankBy.DISTANCE,
 													  types:['bakery','bar','cafe','restaurant']}, 
@@ -243,7 +258,7 @@ $(function(){
 				$('.listedLocation').removeClass('selectedLocation');
 				$(this).addClass('selectedLocation');
 			
-				var service = new google.maps.places.PlacesService(document.getElementById('gblock'));
+				var service = new google.maps.places.PlacesService(document.getElementById('locationInfoContainer'));
 				service.getDetails({reference:selectedLocation.reference},
 			                   	function(data,status){
 														selectedLocation = data; //assign to more detailed version
@@ -388,11 +403,11 @@ $(function(){
 			selectedPhotoURL = selectedLocation.icon;
 		}
 
-		$('.locationInfoContainer').empty();
+		$('#locationInfoContainer').empty();
 		$('.locationPhoto').attr('src',selectedPhotoURL)
-		$('.locationInfoContainer').append(templatedLocationInfo);
+		$('#locationInfoContainer').append(templatedLocationInfo);
 		for(var rIndex = 0; rIndex < location.reviews.length; rIndex++){
-			$('.locationInfoContainer .locationInfoSet .locationReviewInfo').append(reviewTemplate(location.reviews[rIndex]));
+			$('#locationInfoContainer .locationInfoSet .locationReviewInfo').append(reviewTemplate(location.reviews[rIndex]));
 		}
 		$('.locationInfoSet').draggable({axis:'x'});
 		toPageY();
