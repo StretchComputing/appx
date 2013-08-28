@@ -149,7 +149,7 @@ $(function(){
 		var fake = new google.maps.LatLng(41.869727,-87.80585889999999);
 		var mapOptions = {
 			center:fake,
-			zoom:15,
+			zoom:17,
 			mapTypeId:google.maps.MapTypeId.ROADMAP
 		};
 		map = new google.maps.Map(document.getElementById("map"),mapOptions);
@@ -354,10 +354,12 @@ $(function(){
 	
 	var formatRegularHours = function(periods){
 		var times = "";
+		var previousDay = "";
+		
 		for(var pIndex = 0; pIndex < periods.length; pIndex++){
 			var d = periods[pIndex].open.day;
 			var s = periods[pIndex].open.time;
-			var f;
+			var f = periods[pIndex].close.time;
 			
 			var day;
 			var startHour;
@@ -395,19 +397,26 @@ $(function(){
 			startHour = startHour == 0 ? 12 : startHour;
 			
 			startMin = s%100;
+			startMin = startMin == 0 ? '00' : startMin;
 			
 			startAmpm = (Math.floor(s/1200) % 2) < 1 ? 'am' : 'pm';
-			
-			f = s + (100 * periods[pIndex].open.hours) + (periods[pIndex].open.minutes);
 			
 			endHour = Math.floor(f%1200/100);
 			endHour = endHour == 0 ? 12 : endHour;
 			
 			endMin = f%100;
+			endMin = endMin == 0 ? '00' : endMin;
 			
-			endAmpm = (Math.floor(f/1200) % 2) < 1 ? 'am' : 'pm'
+			endAmpm = (Math.floor(f/1200) % 2) < 1 ? 'am' : 'pm';
 			
-			times += day + startHour + ':' + startMin + startAmpm + ' - ' + endHour + ':' + endMin + endAmpm + '</br>';
+			if(previousDay){
+				times += previousDay == day ? ', ' : '</br>' + day;
+			}else{
+				times += day;
+			} 
+			
+			times += startHour + ':' + startMin + startAmpm + ' - ' + endHour + ':' + endMin + endAmpm;
+			previousDay = day;
 		}
 		
 		return times;
