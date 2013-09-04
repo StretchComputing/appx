@@ -462,7 +462,9 @@ $(function(){
 	var showLocationInfo = function(location) {
 		var locationInfoTemplate = _.template($('#locationInfoTemplate').html());
 		var reviewTemplate = _.template($('#reviewTemplate').html());
+		var locationPlotTemplate = _.template($('#locationPlotTemplate').html());
 		var templatedLocationInfo = locationInfoTemplate(location);
+		var templatedLocationPlot = locationPlotTemplate(PLACES[0].periods[5]);
 		var selectedPhotoURL;
 		
 		if(selectedLocation.photos){
@@ -477,10 +479,71 @@ $(function(){
 		for(var rIndex = 0; rIndex < location.reviews.length; rIndex++){
 			$('#locationInfoContainer .locationInfoSet .locationReviewInfo').append(reviewTemplate(location.reviews[rIndex]));
 		}
-		$('.locationInfoSet').draggable({axis:'x',
-																		 scroll:false,
-																		 stop:locationInfoScrollStopHandler});
+		$('#locationInfoContainer .locationInfoSet').append(templatedLocationPlot);
+		$('.locationInfoSet').draggable({
+			axis:'x',
+			scroll:false,
+			stop:locationInfoScrollStopHandler
+		});
+		
+		drawPlot();
 		toPageY();
+	};
+	
+	// for now: this is using fake data until api's are made
+	var drawPlot = function(){
+		var cWidth = $('#dataPlot').width();
+		var cHeight = $('#dataPlot').height();
+		var day = PLACES[0].periods[5].hours;
+		var HinD = day.length; //should be 24
+		var peak = 0;
+		var current = {};
+		var next = {};
+		var mid = {};
+		
+		for(var h = 0; h < HinD; h++){
+			peak = day[h].tot > peak ? day[h].tot : peak;
+		}
+		
+		var ctx = document.getElementById('dataPlot').getContext('2d');
+		ctx.lineWidth = 3;
+		ctx.beginPath();
+		ctx.moveTo(0,cHeight);
+	
+		for(var h = 0; h < HinD; h++){
+			
+			if(h == 0){
+				current.y = cHeight*(1 - (day[h].tot / peak));
+				current.x = cWidth * ((h%12) / 12);
+			}else if(h == 12){
+				current.y = next.y;
+				current.x = 0;
+				
+				ctx.strokeStyle = 'rgba(255,0,0,0.7)';
+				ctx.stroke();
+				ctx.beginPath();
+				ctx.moveTo(0,current.y);
+			}else{
+				current.y = next.y;
+				current.x = next.x;
+			}
+			
+			if(h == 23){
+				next.y = cHeight*(1 - (day[0].tot / peak));
+				next.x = cWidth * ((h%12 + 1) / 12);
+			}else{
+				next.y = cHeight*(1 - (day[h+1].tot / peak));
+				next.x = cWidth * ((h%12 + 1) / 12);
+			}			
+			mid.y = (next.y + current.y)/2;
+			mid.x = (next.x + current.x)/2;
+
+			ctx.bezierCurveTo(current.x,current.y,mid.x,current.y,mid.x,mid.y);
+			ctx.bezierCurveTo(mid.x,mid.y,mid.x,next.y,next.x,next.y);
+		}
+		
+		ctx.strokeStyle = 'rgba(0,0,255,0.7)';
+		ctx.stroke();
 	};
 	
 	var locationInfoScrollStopHandler = function(){

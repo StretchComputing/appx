@@ -251,7 +251,6 @@ body{
 	top:0%;
 	left:0%;
 	overflow-x:hidden;
-	border-right:1px solid #ff6;
 	font:14px courier,monospace
 }
 
@@ -267,7 +266,6 @@ body{
 	top:0%;
 	left:25%;
 	border-left:1px solid #ff6;
-	border-right:1px solid #ff6;
 	font:14px courier,monospace
 }
 
@@ -283,6 +281,59 @@ body{
 
 .reviewText{
 	margin-left:2em;
+}
+
+.locationData{
+	position:absolute;
+	width:25%;
+	height:100%;
+	top:0%;
+	left:75%;
+	border-left:1px solid #ff6;
+}
+
+#dataPlot{
+	position:absolute;
+	width:90%;
+	height:90%;
+	top:5%;
+	left:5%;
+	background-color:#eea;
+}
+
+#dataPlotDay{
+	position:absolute;
+	width:20%;
+	top:2%;
+	left:2%;
+	background-color:#22f;
+	color:#fff;
+	text-align:center;
+	font:16px courier,monospace;
+}
+
+.plotTagHour{
+	position:absolute;
+	background-color:#f22;
+	width:1.5em;
+	color:#fff;
+	text-align:center;
+	font:14px courier,monospace;
+}
+
+#tag3{
+	top:92%;
+	left:23%
+}
+
+#tag6{
+	top:92%;
+	left:47%
+}
+
+#tag9{
+	top:92%;
+	left:72%
 }
 
 #map{
@@ -311,7 +362,7 @@ body{
 
 .userStats{
 	position:relative;
-	width:95%;
+	width:97%;
 	padding-top:1%;
 	padding-bottom:1%;
 	padding-left:1%;
