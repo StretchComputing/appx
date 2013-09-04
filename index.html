@@ -2,7 +2,7 @@
 <html scroll="no">
   <head>
 		
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
 		
     <script src="js/lib/jquery-1.9.1.js"></script>
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=true"></script>
@@ -20,12 +20,12 @@
 			<div id="set">
 				
 				<div class="pageBlock" id="yblock">
-					<div class="header">location info</div>
+					<div class="header"><div class="vCentered">location info</div></div>
 					<div class="ycontent, locationInfoOptions">
-						<div class="nowVisiting">start visit</div>
-						<div class="wantToGo">want to go</div>
-						<div class="rateReview">rate/ review</div>
-						<div class="seeData">see data</div>
+						<div class="nowVisiting"><div class="vCentered">start visit</div></div>
+						<div class="wantToGo"><div class="vCentered">want to go</div></div>
+						<div class="rateReview"><div class="vCentered">rate/ review</div></div>
+						<div class="seeData"><div class="vCentered">see data</div></div>
 					</div>
 					<div class="ycontent, locationPhotoContainer">
 						<img class="locationPhoto" src=""></img>
@@ -34,19 +34,21 @@
 				</div>
 			
       	<div class="pageBlock" id="rblock">
-					<div class="header">select location</div>
-        	<div class="placeSearch" id="nearbySearch">here</div>
+					<div class="header"><div class="vCentered">select location</div></div>
+        	<div class="placeSearch" id="nearbySearch"><div class="vCentered">here</div></div>
 					<div class="placeSearch" id="otherSearch"><input type="text" placeholder="address"></input></div>
-					<div displayed"none" id="searchResults"></div>
-      	</div>
+					<div id="searchResultsWrapper">
+						<div displayed"none" id="searchResults"></div>
+					</div>
+	    	</div>
 			
      	 	<div class="pageBlock" id="gblock">
-      		<div class="header">map</div>
+      		<div class="header"><div class="vCentered">map</div></div>
 					<div id="map"></div>
       	</div>
 			
       	<div class="pageBlock" id="bblock">
-					<div class="header">user statistics</div>
+					<div class="header"><div class="vCentered">user statistics</div></div>
 					<div class="userStatsContainer">
 						<div class="userStats">
 							<div class="userStatsTitle">unique places</div>
@@ -103,7 +105,7 @@
 					<div><%= appxForm.price %></div>
 					<div><%= appxForm.isOpen %></div>
 					<div><%= formatted_phone_number %></div>
-					<div><%= website %></div>
+					<a href="<%=website%>" target="_blank"><%= website %></a>
 				</div>
 				<div class="locationHoursInfo">
 				  <div><%= appxForm.regularHours %></div>

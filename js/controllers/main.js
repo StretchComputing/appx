@@ -12,6 +12,21 @@ var mapMarkers = [];
 
 $(function(){
 	
+	//center vertically an element within its parent
+	var vCenter = function(e){
+		var h = e.outerHeight();
+		var parH = e.parent().outerHeight();
+		var etop = (parH - h)/2;
+		etop = etop > 0 ? etop : 0;
+		e.css('top',etop);
+	};
+	
+	$('.vCentered').each(function(i,obj){
+		vCenter($(this));
+	});
+	
+	
+	
 	pages = { page:'r',
 						diffH:window.innerWidth * 0.03,
 						diffV:window.innerHeight * 0.03,
@@ -19,7 +34,7 @@ $(function(){
 						thresholdV:$('#rblock').height() * -0.5};
 	
   //Navigation between pages
-  //  -able: drag and revert back, change page with clicks
+  //  -able: drag and revert back, change page with clicks, drag between pages
   //  -later: swipe between pages (momentum sensitive)
  
 	var dragStartHandler = function(){
@@ -191,7 +206,7 @@ $(function(){
 		var pullDownResults = function(){
 			$('#' + searchType + 'Search').animate({height:'8%'},
 		                                         {duration:100,
-				                                      complete:function(){$('#searchResults').animate({height:'72%'},200)}});
+				                                      complete:function(){$('#searchResults').animate({height:'98%'},200)}});
 			$('#searchResults').attr('displayed',searchType);
 		}
 		
@@ -201,11 +216,24 @@ $(function(){
 			var displayed = $('#searchResults').attr('displayed');
 			$('#searchResults').animate({height:'0%'},
 																	 {duration:200,
-																	  complete:function(){$('#' + displayed + 'Search').animate({height:'5%'},
+																	  complete:function(){$('#' + displayed + 'Search').animate({height:'6%'},
 																																									           {duration:100,
 																																									            complete:pullDownResults()})}});
 		}
 		
+		/* THIS IS NOT WORKING AT THE MOMENT
+		var locationHeight = $('.listedLocation').height();
+		var locationWidth = $('.listedLocation').width();
+		var resultsHeight = $('#searchResults').height();
+		var y1 = resultsHeight - (locationHeight + .02*resultsHeight) * len;
+	  y1 = y1 > 0 ? 0 : y1;
+		
+		$('#searchResults').draggable({ 
+			axis:'y',
+			scroll:false,
+		  containment:[0,y1,locationWidth,resultsHeight]
+		}); */
+			
 		addSelectListedLocationEvents();
 		addMapMarkers();
 	};
@@ -250,6 +278,15 @@ $(function(){
 													 showResults(listedLocations,'nearby');
                          });
   });
+	
+	$('#nearbySearch').mousedown(function(){
+		$(this).css('background-color','#ccc');
+		$(this).css('color','#222');
+	});
+	$('#nearbySearch').mouseup(function(){
+		$(this).css('background-color','#222');
+		$(this).css('color','#fff');
+	});
 	
 	//Get Google places info: specified location
 	$('#otherSearch input').change(function() {

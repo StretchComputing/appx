@@ -73,50 +73,73 @@ body{
 	text-align:center;
 	background-color:#222;
 	color:#fff;
-	font:15px courier,monospace;
+	font:16px courier,monospace;
 	z-index:2
+}
+
+.vCentered{
+	position:absolute;
+	text-align:center;
+	width:100%;
 }
 
 .placeSearch{
 	position:absolute; 
 	width:42%;
-	height:5%;
-	padding-top:1%;
-	padding-bottom:1%;
+	height:6%;
 	text-align:center;
 	background-color:#222;
 	color:#fff;
-	font:15px courier,monospace;
+	font:16px courier,monospace;
 	z-index:1
 }
 
 #nearbySearch{
 	top:12%; 
 	left:6%;
+	line-height:100%
 }
 
 #otherSearch{
+	height:6%;
 	top:12%;
 	left:52%;
 }
 
 #otherSearch input{
-	width:70%;
-	background-color:#000;
+	width:100%;
+	height:100%;
+	border:0px;
+	padding:0px;
+	margin:0px;
+	background-color:#222;
 	color:#fff;
-	font:8px courier,monospace
+	text-align:center;
+	font:16px courier,monospace;
+}
+
+#searchResultsWrapper{
+	position:absolute;
+	width:88%;
+	height:76%;
+	top:20%;
+	left:6%;
+	background-color:#f66;
+	color:#fff;
+	overflow-y:hidden;
+	z-index:2
 }
 
 #searchResults{
 	position:absolute;
-	width:86%;
+	width:98%;
 	height:0%;
 	padding-top:1%;
 	padding-bottom:1%;
 	padding-left:1%;
 	padding-right:1%;
-	top:20%;
-	left:6%;
+	top:0%;
+	left:0%;
 	background-color:#222;
 	color:#fff;
 	overflow-y:auto;
@@ -125,7 +148,7 @@ body{
 
 .listedLocation{
 	position:relative;
-	width:95%;
+	width:97%;
 	padding-top:1%;
 	padding-bottom:1%;
 	padding-left:1%;
@@ -163,7 +186,7 @@ body{
 	background-color:#222;
 }
 
-.locationInfoOptions div{
+.locationInfoOptions>div{
 	position:relative;
 	width:98%;
 	height:23%;
@@ -189,13 +212,12 @@ body{
 	padding-left:1%;
 	padding-right:1%;
 	background-color:#222;
+	overflow-y:hidden;
 	text-align:center;
 }
 
 .locationPhoto{
 	width:98%;
-	max-width:98%;
-  max-height:80%;
 }
 
 #locationInfoContainer{
@@ -228,8 +250,14 @@ body{
 	height:100%;
 	top:0%;
 	left:0%;
+	overflow-x:hidden;
 	border-right:1px solid #ff6;
 	font:14px courier,monospace
+}
+
+.locationGeneralInfo a{
+	color:#aaf;
+	font:12px courier,monospace
 }
 
 .locationHoursInfo{
@@ -254,7 +282,7 @@ body{
 }
 
 .reviewText{
-	margin-left:5em;
+	margin-left:2em;
 }
 
 #map{
