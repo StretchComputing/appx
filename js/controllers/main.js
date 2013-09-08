@@ -9,6 +9,7 @@ var drag = { 	posi:  {x:0,y:0},
              	timef: 0  };
 var map; //for the google map display
 var mapMarkers = [];
+var currentVisit = {};
 
 $(function(){
 	
@@ -140,26 +141,34 @@ $(function(){
 	    $(this).focus();
 	});
 	
-  // getLocation: void -> {lat,lng,bool}
-  // Gets current location using html5 geolocation
-  var getLocation = function(){
-  	var currentLocation;
+  // watchLocation watches current location using html5 geolocation
+  var watchLocation = function(){
     function findlocation(){
 			if(navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(setCoords);
+        var watchID = navigator.geolocation.watchPosition(userNewLocation);
       } else {
 	      //some popup or flash that the browser does not support this
       }
 		};
-		function setCoords(position) {
+		function userNewLocation(position) {
     	var userLat = position.coords.latitude;
    	 	var userLng = position.coords.longitude;
 			here = new google.maps.LatLng(userLat, userLng);
+			
+			//check if new location is within bounds of visit location
+			if(currentVisit){
+				var thresholdRadius = 0.001;
+				var diffLat = userLat - currentVisit.place.lat;
+				var diffLng = userLng - currentVisit.place.lng
+				var distance = Math.sqrt(diffLat*diffLat + diffLng*diffLng);
+				if(distance > thresholdRadius){
+					//end the visit
+				}
+			}
   	};
 		findlocation();
-		return currentLocation;
   }; 
-  getLocation();
+  watchLocation();
 	
 	//initialize google map, will start centered on current location until search is made
 	var initializeMap = function(){
@@ -264,7 +273,6 @@ $(function(){
   //
   $('#nearbySearch').click(function() {
 		var fake = new google.maps.LatLng(41.869727,-87.80585889999999);
-    var service = new google.maps.places.PlacesService(document.getElementById('searchResults'));
     service.nearbySearch({location: here,
 													rankBy:google.maps.places.RankBy.DISTANCE,
 												  types:['bakery','bar','cafe','restaurant']}, 
