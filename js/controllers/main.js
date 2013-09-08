@@ -12,6 +12,8 @@ var mapMarkers = [];
 
 $(function(){
 	
+	var service = new google.maps.places.PlacesService(document.getElementById('targetSearchResults'));
+	
 	//center vertically an element within its parent
 	var vCenter = function(e){
 		var h = e.outerHeight();
@@ -200,25 +202,22 @@ $(function(){
 			templatedLocation= templatedLocation.replace('listedLocation_i','listedLocation_' + index);
 			locationsToInsert += templatedLocation;	
 		}
-		$('#searchResults').empty();
-		$('#searchResults').append(locationsToInsert);
 		
 		var pullDownResults = function(){
-			$('#' + searchType + 'Search').animate({height:'8%'},
-		                                         {duration:100,
-				                                      complete:function(){$('#searchResults').animate({height:'98%'},200)}});
+			$('#searchResults').empty();
+			$('#searchResults').append(locationsToInsert);
+			$('#searchResults').animate({height:'98%'},500);
 			$('#searchResults').attr('displayed',searchType);
+			addSelectListedLocationEvents();
+			addMapMarkers();
 		}
+		
+		var displayed = $('#searchResults').attr('displayed');
 		
 		if(displayed == 'none'){
 			pullDownResults();
 		} else {
-			var displayed = $('#searchResults').attr('displayed');
-			$('#searchResults').animate({height:'0%'},
-																	 {duration:200,
-																	  complete:function(){$('#' + displayed + 'Search').animate({height:'6%'},
-																																									           {duration:100,
-																																									            complete:pullDownResults()})}});
+			$('#searchResults').animate({height:'0%'},300,function(){pullDownResults();});
 		}
 		
 		/* THIS IS NOT WORKING AT THE MOMENT
@@ -233,9 +232,6 @@ $(function(){
 			scroll:false,
 		  containment:[0,y1,locationWidth,resultsHeight]
 		}); */
-			
-		addSelectListedLocationEvents();
-		addMapMarkers();
 	};
 	
 	var getIndexById = function(selectedId){
@@ -290,11 +286,14 @@ $(function(){
 	
 	//Get Google places info: specified location
 	$('#otherSearch input').change(function() {
+		
+		$("html, body").animate({ scrollTop: $('#set').offset().top,
+		 													scrollLeft: $('#set').offset().left }, 100);
+
 		geocoder = new google.maps.Geocoder();
 		var address = $(this).val();
 		geocoder.geocode({'address':address}, function(data,status){
 			var there = data[0].geometry.location;
-	    var service = new google.maps.places.PlacesService(document.getElementById('searchResults'));
 	    service.nearbySearch({location: there,
 														rankBy:google.maps.places.RankBy.DISTANCE,
 													  types:['bakery','bar','cafe','restaurant']}, 
@@ -492,8 +491,8 @@ $(function(){
 	
 	// for now: this is using fake data until api's are made
 	var drawPlot = function(){
-		var cWidth = $('#dataPlot').width();
-		var cHeight = $('#dataPlot').height();
+		var cWidth = $('#dataPlot').attr('width');
+		var cHeight = $('#dataPlot').attr('height');
 		var day = PLACES[0].periods[5].hours;
 		var HinD = day.length; //should be 24
 		var peak = 0;
@@ -505,8 +504,9 @@ $(function(){
 			peak = day[h].tot > peak ? day[h].tot : peak;
 		}
 		
-		var ctx = document.getElementById('dataPlot').getContext('2d');
-		ctx.lineWidth = 3;
+		var canvas = document.getElementById('dataPlot');
+		var ctx = canvas.getContext('2d');
+		ctx.lineWidth = 8;
 		ctx.beginPath();
 		ctx.moveTo(0,cHeight);
 	

@@ -39,8 +39,9 @@
         	<div class="placeSearch" id="nearbySearch"><div class="vCentered">here</div></div>
 					<div class="placeSearch" id="otherSearch"><input type="text" placeholder="address"></input></div>
 					<div id="searchResultsWrapper">
-						<div displayed"none" id="searchResults"></div>
+						<div displayed="none" id="searchResults"></div>
 					</div>
+					<div id="targetSearchResults"></div>
 	    	</div>
 			
      	 	<div class="pageBlock" id="gblock">
@@ -123,7 +124,7 @@
 		
 		<script type="text/template" id="locationPlotTemplate">
 		<div class="locationData">
-			<canvas id="dataPlot"></canvas>
+			<canvas width="1200" height="1000" id="dataPlot"></canvas>
 			<div id="dataPlotDay"><%= day %></div>
 			<div class="plotTagHour" id="tag3">3</div>
 			<div class="plotTagHour" id="tag6">6</div>
