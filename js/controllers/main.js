@@ -9,7 +9,7 @@ var drag = { 	posi:  {x:0,y:0},
              	timef: 0  };
 var map; //for the google map display
 var mapMarkers = [];
-var currentVisit = {};
+var currentVisit = {isActive:false};
 
 $(function(){
 	
@@ -156,13 +156,13 @@ $(function(){
 			here = new google.maps.LatLng(userLat, userLng);
 			
 			//check if new location is within bounds of visit location
-			if(currentVisit){
+			if(currentVisit.isActive){
 				var thresholdRadius = 0.001;
 				var diffLat = userLat - currentVisit.place.lat;
 				var diffLng = userLng - currentVisit.place.lng
 				var distance = Math.sqrt(diffLat*diffLat + diffLng*diffLng);
 				if(distance > thresholdRadius){
-					//end the visit
+					endVisit();
 				}
 			}
   	};
@@ -493,8 +493,69 @@ $(function(){
 			stop:locationInfoScrollStopHandler
 		});
 		
+		$('.nowVisiting').off();
+		$('.nowVisiting').on('click',function(){startVisit();});
+		
 		drawPlot();
 		toPageY();
+	};
+	
+	// start a visit to the selected location
+	var startVisit = function(){
+		currentVisit.isActive = true;
+		currentVisit.place = selectedLocation;
+		currentVisit.startTime = new Date();
+		currentVisit.endTime = false;
+		currentVisit.bump = false;
+		currentVisit.review = false;
+		
+		var liveVisitTemplate = _.template($('#liveVisitTemplate').html());
+		var templatedLiveVisit = liveVisitTemplate(currentVisit);
+		
+		$('.setWrapper').append(templatedLiveVisit);
+		$('#visitHeader').on('click',function(){
+			collapseVisit();
+		});
+		$('#visitEndButton').on('click',function(){
+			endVisit();
+		})
+	};
+	
+	var collapseVisit = function(){
+		$('#liveVisit').animate({
+			height:'1.5em',
+			width:'7em',
+			top:'95%',
+			left:'95%'
+		},500);
+		$('#visitHeader').removeClass('visitExpanded');
+		$('#visitHeader').addClass('visitCollapsed');
+		$('#liveVisit').attr('opened','false');
+		$('#visitHeader').off();
+		$('#visitHeader').on('click',function(){
+			expandVisit();
+		});
+	};
+	
+	var expandVisit = function(){
+		$('#liveVisit').animate({
+			height:'80%',
+			width:'80%',
+			top:'10%',
+			left:'10%',
+		},500);
+		$('#visitHeader').removeClass('visitCollapsed');
+		$('#visitHeader').addClass('visitExpanded');
+		$('#liveVisit').attr('opened','true');
+		$('#visitHeader').off();
+		$('#visitHeader').on('click',function(){
+			collapseVisit();
+		});
+	};
+	
+	var endVisit = function(){
+		$('#liveVisit').remove();
+		currentVisit = {isActive:false};
 	};
 	
 	// for now: this is using fake data until api's are made

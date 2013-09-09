@@ -123,13 +123,31 @@
 		</script>
 		
 		<script type="text/template" id="locationPlotTemplate">
-		<div class="locationData">
-			<canvas width="1200" height="1000" id="dataPlot"></canvas>
-			<div id="dataPlotDay"><%= day %></div>
-			<div class="plotTagHour" id="tag3">3</div>
-			<div class="plotTagHour" id="tag6">6</div>
-			<div class="plotTagHour" id="tag9">9</div>
-		</div>
+			<div class="locationData">
+				<canvas width="1200" height="1000" id="dataPlot"></canvas>
+				<div id="dataPlotDay"><%= day %></div>
+				<div class="plotTagHour" id="tag3">3</div>
+				<div class="plotTagHour" id="tag6">6</div>
+				<div class="plotTagHour" id="tag9">9</div>
+				</div>
+		</script>
+		
+		<script type="text/template" id="liveVisitTemplate">
+			<div opened="true" id="liveVisit">
+				<div id="visitHeader">
+					<div  id="visitShowHide"></div>
+					<div id="visitTitle">visit</div>
+				</div>
+				<div id="visitName"><%= place.name %></div>
+				<div id="visitAddress"><%= place.formatted_address%></div>
+				<div id="visitBump">+bump</div>
+				<div id="visitStartTime"><%= startTime %></div>
+				<div id="visitEndButton">end visit</div>
+				<div id="visitReview">
+					<div>review</div>
+					<textarea id="visitReviewTextArea"></textarea>
+				</div>
+			</div>
 		</script>
 		
   </body>

@@ -17,6 +17,10 @@ body{
 	background-color:#000
 }
 
+textarea{
+	resize:none
+}
+
 .setWrapper{
 	overflow:hidden;
 	position:absolute;
@@ -371,4 +375,16 @@ body{
 	color:#fff;
 	font:14px courier,monospace;
 	border:1px solid #222;	
+}
+
+#liveVisit{
+	position:absolute;
+	background-color:#f6f;
+	width:80%;
+	height:80%;
+	top:10%;
+	left:10%;
+	overflow-x:hidden;
+	overflow-y:hidden;
+	z-index:99;
 }
