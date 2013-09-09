@@ -522,12 +522,18 @@ $(function(){
 	};
 	
 	var collapseVisit = function(){
+		var collapseHeight = 1.75; //in em
+		var collapseWidth = 10;    //in em
+		var collapseTop = $('.setWrapper').height() - collapseHeight*14 - 2 ; //in px
+		var collapseLeft = $('.setWrapper').width() - collapseWidth*14 - 2 ; //in px
+		
 		$('#liveVisit').animate({
-			height:'1.5em',
-			width:'7em',
-			top:'95%',
-			left:'95%'
+			height: collapseHeight + 'em',
+			width:collapseWidth + 'em',
+			top: collapseTop + 'px',
+			left: collapseLeft + 'px'
 		},500);
+		
 		$('#visitHeader').removeClass('visitExpanded');
 		$('#visitHeader').addClass('visitCollapsed');
 		$('#liveVisit').attr('opened','false');
