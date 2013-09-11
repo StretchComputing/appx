@@ -424,46 +424,56 @@ textarea{
 	height:100%;
 	top:.4em;
 	left:2.5em;
+	font:14px courier,monospace;
 }
 
 #visitName{
 	position:absolute;
 	top:2em;
 	left:.25em;
+	font:12px courier,monospace;
 }
 
 #visitAddress{
 	position:absolute;
 	top:3em;
 	left:.25em;
+	font:12px courier,monospace;
 }
 
 #visitStartTime{
 	position:absolute;
 	top:7em;
 	left:.25em;
+	font:12px courier,monospace;
 }
 
 #visitEndButton{
 	position:absolute;
 	width:94%;
 	left:3%;
-	top:8.5em;
+	top:9.5em;
 	padding-top:.3em;
 	padding-bottom:.3em;
 	background-color:#222;
 	border:1px solid #fff;
 	text-align:center;
+	font:12px courier,monospace;
+}
+
+#visitEndButton span{
+	font:12px courier,monospace;
 }
 
 #visitReview{
 	position:absolute;
-	top:11.5em;
+	top:12em;
 	left:5%;
 	width:90%;
-	height:15em;
+	height:13.5em;
 	border:1px solid #fff;
 	background-color:#f6f;
+	font:12px courier,monospace;
 }
 
 #visitReviewTitle{
@@ -474,6 +484,7 @@ textarea{
 	height:1.75em;
 	background-color:#222;
 	border-bottom:1px solid #fff;
+	font:12px courier,monospace;
 }
 
 #visitReviewTextArea{
@@ -481,30 +492,45 @@ textarea{
 	top:2em;
 	left:3%;
 	width:94%;
-	height:9em;
+	height:8em;
 	background-color:#222;
 	color:#fff;
 	font:14px courier,monospace;
 	padding:0px;
 	margin:0px;
+	font:12px courier,monospace;
 }
 
 #visitSubmitReview{
 	position:absolute;
-	top:12em;
+	top:11em;
 	left:3%;
 	width:45%;
 	background-color:#a2a;
 	text-align:center;
 	border:1px solid #fff;
+	padding-top:.2em;
+	padding-bottom:.2em;
+	font:12px courier,monospace;
+}
+
+#visitSubmitReview span{
+	font:12px courier,monospace;
 }
 
 #visitBump{
 	position:absolute;
-	top:12em;
+	top:11em;
 	left:52%;
 	width:45%;
 	background-color:#a2a;
 	text-align:center;
 	border:1px solid #fff;
+	padding-top:.2em;
+	padding-bottom:.2em;
+	font:12px courier,monospace;
+}
+
+#visitBump span{
+	font:12px courier,monospace;
 }

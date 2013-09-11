@@ -24,11 +24,16 @@ $(function(){
 		e.css('top',etop);
 	};
 	
+	var vCenterInit = function(e){
+		vCenter(e);
+		$(window).resize(function(){
+			vCenter(e);
+		});
+	};
+	
 	$('.vCentered').each(function(i,obj){
-		vCenter($(this));
+		vCenterInit($(this));
 	});
-	
-	
 	
 	pages = { page:'r',
 						diffH:window.innerWidth * 0.03,
@@ -136,10 +141,22 @@ $(function(){
     toPageY()
   });
 	
+	//set up a vertical scroll on an element with id 'id', wrapper height wrapH, and height scrolled h
+	var verticalScrollInit = function(id,h,wrapH){
+		var offs = $('#' + id).offset();
+		if(h > wrapH){
+			$('#' + id).draggable({
+		  	axis:'y',
+		  	scroll:false,
+      	containment:[offs.left, offs.top - h + wrapH, offs.left, offs.top]
+			});
+		}
+	};
+	
 	//this is necessary because touch-punch prevented input from being accessed
-	/*$('input').bind('click', function(){
+	$('input').bind('click', function(){
 	    $(this).focus();
-	});*/
+	});
 	
   // watchLocation watches current location using html5 geolocation
   var watchLocation = function(){
@@ -215,8 +232,18 @@ $(function(){
 		var pullDownResults = function(){
 			$('#searchResults').empty();
 			$('#searchResults').append(locationsToInsert);
-			$('#searchResults').animate({height:'98%'},500);
+			
+			var h = 0;
+			for(var i = 0; i < len; i++){
+				h += $('#listedLocation_' + i).outerHeight();
+			}
+			
+			var wrapH = $('#searchResultsWrapper').height();
+			var adjustedH = h > wrapH ? h : wrapH;
+			
+			$('#searchResults').animate({height:adjustedH},500);
 			$('#searchResults').attr('displayed',searchType);
+			verticalScrollInit('searchResults',h,wrapH);
 			addSelectListedLocationEvents();
 			addMapMarkers();
 		}
@@ -228,19 +255,6 @@ $(function(){
 		} else {
 			$('#searchResults').animate({height:'0%'},300,function(){pullDownResults();});
 		}
-		
-		/* THIS IS NOT WORKING AT THE MOMENT
-		var locationHeight = $('.listedLocation').height();
-		var locationWidth = $('.listedLocation').width();
-		var resultsHeight = $('#searchResults').height();
-		var y1 = resultsHeight - (locationHeight + .02*resultsHeight) * len;
-	  y1 = y1 > 0 ? 0 : y1;
-		
-		$('#searchResults').draggable({ 
-			axis:'y',
-			scroll:false,
-		  containment:[0,y1,locationWidth,resultsHeight]
-		}); */
 	};
 	
 	var getIndexById = function(selectedId){
@@ -549,7 +563,9 @@ $(function(){
 			width:'90%',
 			top:'5%',
 			left:'5%',
-		},500);
+		},500,function(){
+			$('#liveVisit *:not(#visitTitle,#visitShowHide,#visitHeader)').css('font','12px courier,monospace');
+		});
 		$('#visitHeader').removeClass('visitCollapsed');
 		$('#visitHeader').addClass('visitExpanded');
 		$('#liveVisit').attr('opened','true');
