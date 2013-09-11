@@ -137,9 +137,9 @@ $(function(){
   });
 	
 	//this is necessary because touch-punch prevented input from being accessed
-	$('input').bind('click', function(){
+	/*$('input').bind('click', function(){
 	    $(this).focus();
-	});
+	});*/
 	
   // watchLocation watches current location using html5 geolocation
   var watchLocation = function(){
@@ -545,10 +545,10 @@ $(function(){
 	
 	var expandVisit = function(){
 		$('#liveVisit').animate({
-			height:'80%',
-			width:'80%',
-			top:'10%',
-			left:'10%',
+			height:'90%',
+			width:'90%',
+			top:'5%',
+			left:'5%',
 		},500);
 		$('#visitHeader').removeClass('visitCollapsed');
 		$('#visitHeader').addClass('visitExpanded');

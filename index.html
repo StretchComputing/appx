@@ -36,8 +36,8 @@
 			
       	<div class="pageBlock" id="rblock">
 					<div class="header"><div class="vCentered">select location</div></div>
-        	<div class="placeSearch" id="nearbySearch"><div class="vCentered">here</div></div>
-					<div class="placeSearch" id="otherSearch"><input type="text" placeholder="address"></input></div>
+        	<div class="placeSearch useDefault" id="nearbySearch"><div class="vCentered">here</div></div>
+					<div class="placeSearch useDefault" id="otherSearch"><input class="useDefault" type="text" placeholder="address"></input></div>
 					<div id="searchResultsWrapper">
 						<div displayed="none" id="searchResults"></div>
 					</div>
@@ -140,12 +140,13 @@
 				</div>
 				<div id="visitName"><%= place.name %></div>
 				<div id="visitAddress"><%= place.formatted_address%></div>
-				<div id="visitBump">+bump</div>
-				<div id="visitStartTime"><%= startTime %></div>
-				<div id="visitEndButton">end visit</div>
+				<div id="visitStartTime">start: <%= startTime.toLocaleString() %></div>
+				<div id="visitEndButton">end visit now</div>
 				<div id="visitReview">
-					<div>review</div>
+					<div id="visitReviewTitle">review</div>
 					<textarea id="visitReviewTextArea"></textarea>
+					<div id="visitSubmitReview">submit</div>
+					<div id="visitBump">+bump</div>
 				</div>
 			</div>
 		</script>
