@@ -25,10 +25,10 @@
 				<div class="pageBlock" id="yblock">
 					<div class="header"><div class="vCentered">location info</div></div>
 					<div class="ycontent, locationInfoOptions">
-						<div class="nowVisiting"><div class="vCentered">start visit</div></div>
-						<div class="wantToGo"><div class="vCentered">want to go</div></div>
-						<div class="rateReview"><div class="vCentered">rate/ review</div></div>
-						<div class="seeData"><div class="vCentered">see data</div></div>
+						<div class="nowVisiting clickable"><div class="vCentered">start visit</div></div>
+						<div class="wantToGo clickable"><div class="vCentered">want to go</div></div>
+						<div class="rateReview clickable"><div class="vCentered">rate/ review</div></div>
+						<div class="nextPlace clickable"><div class="vCentered">next place</div></div>
 					</div>
 					<div class="ycontent, locationPhotoContainer">
 						<img class="locationPhoto" src=""></img>
@@ -38,7 +38,7 @@
 			
       	<div class="pageBlock" id="rblock">
 					<div class="header"><div class="vCentered">select location</div></div>
-        	<div class="placeSearch useDefault" id="nearbySearch"><div class="vCentered">here</div></div>
+        	<div class="placeSearch useDefault clickable" id="nearbySearch"><div class="vCentered">here</div></div>
 					<div class="placeSearch useDefault" id="otherSearch"><input class="useDefault" type="text" placeholder="address"></input></div>
 					<div id="searchResultsWrapper">
 						<div displayed="none" id="searchResults"></div>
@@ -54,35 +54,35 @@
       	<div class="pageBlock" id="bblock">
 					<div class="header"><div class="vCentered">user statistics</div></div>
 					<div class="userStatsContainer">
-						<div class="userStats">
+						<div class="userStats clickable">
 							<div class="userStatsTitle">unique places</div>
 							<div class="userStatsContent" id="userUniquePlaces"></div>
 						</div>
-						<div class="userStats">
+						<div class="userStats clickable">
 							<div class="userStatsTitle">total visits</div>
 							<div class="userStatsContent" id="userTotalPlaces"></div>
 						</div>
-						<div class="userStats">
+						<div class="userStats clickable">
 							<div class="userStatsTitle">want to visit</div>
 							<div class="userStatsContent" id="userWantToVisit"></div>
 						</div>
-						<div class="userStats">
+						<div class="userStats clickable">
 							<div class="userStatsTitle">most visited</div>
 							<div class="userStatsContent" id="userMostVisited"></div>
 						</div>
-						<div class="userStats">
+						<div class="userStats clickable">
 							<div class="userStatsTitle">total time</div>
 							<div class="userStatsContent" id="userTotalTime"></div>
 						</div>
-						<div class="userStats">
+						<div class="userStats clickable">
 							<div class="userStatsTitle">bumps</div>
 							<div class="userStatsContent" id="userBumps"></div>
 						</div>
-						<div class="userStats">
+						<div class="userStats clickable">
 							<div class="userStatsTitle">reviews</div>
 							<div class="userStatsContent" id="userReviews"></div>
 						</div>
-						<div class="userStats">
+						<div class="userStats clickable">
 							<div class="userStatsTitle">history</div>
 							<div class="userStatsContent" id="userTotalTime"></div>
 						</div>
@@ -136,19 +136,19 @@
 		
 		<script type="text/template" id="liveVisitTemplate">
 			<div opened="true" id="liveVisit">
-				<div id="visitHeader">
+				<div class="clickable" id="visitHeader">
 					<div id="visitShowHide"></div>
 					<div id="visitTitle">visit</div>
 				</div>
 				<div id="visitName"><%= place.name %></div>
 				<div id="visitAddress"><%= place.formatted_address%></div>
 				<div id="visitStartTime">start: <%= startTime.toLocaleString() %></div>
-				<div id="visitEndButton">end visit now</div>
+				<div class="clickable" id="visitEndButton">end visit now</div>
 				<div id="visitReview">
 					<div id="visitReviewTitle">review</div>
 					<textarea id="visitReviewTextArea"></textarea>
-					<div id="visitSubmitReview">submit</div>
-					<div id="visitBump">+bump</div>
+					<div class="clickable" id="visitSubmitReview">submit</div>
+					<div class="clickable" id="visitBump">+bump</div>
 				</div>
 			</div>
 		</script>

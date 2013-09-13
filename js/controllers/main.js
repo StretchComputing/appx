@@ -297,14 +297,22 @@ $(function(){
                          });
   });
 	
-	$('#nearbySearch').mousedown(function(){
-		$(this).css('background-color','#ccc');
-		$(this).css('color','#222');
-	});
-	$('#nearbySearch').mouseup(function(){
-		$(this).css('background-color','#222');
-		$(this).css('color','#fff');
-	});
+	var initClickables = function(){
+		$('.clickable').off('mousedown');
+		$('.clickable').mousedown(function(){
+			$(this).attr('natColor',$(this).css('color'));
+			$(this).attr('natBColor',$(this).css('background-color'));
+			$(this).css('background-color','#ccc');
+			$(this).css('color','#222');
+		});
+	  
+		$('.clickable').off('mouseup');
+		$('.clickable').mouseup(function(){
+			$(this).css('background-color',$(this).attr('natBColor'));
+			$(this).css('color',$(this).attr('natColor'));
+		});
+	};
+	initClickables();
 	
 	//Get Google places info: specified location
 	$('#otherSearch input').change(function() {
@@ -511,6 +519,7 @@ $(function(){
 		$('.nowVisiting').on('click',function(){startVisit();});
 		
 		drawPlot();
+		initClickables();
 		toPageY();
 	};
 	
@@ -532,7 +541,8 @@ $(function(){
 		});
 		$('#visitEndButton').on('click',function(){
 			endVisit();
-		})
+		});
+		initClickables();
 	};
 	
 	var collapseVisit = function(){
