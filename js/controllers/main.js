@@ -15,20 +15,35 @@ $(function(){
 	
 	var service = new google.maps.places.PlacesService(document.getElementById('targetSearchResults'));
 	
-	//center vertically an element within its parent
+	// center vertically an element e within its parent, returns nothing
 	var vCenter = function(e){
-		var h = e.outerHeight();
-		var parH = e.parent().outerHeight();
-		var etop = (parH - h)/2;
-		etop = etop > 0 ? etop : 0;
-		e.css('top',etop);
+		try{
+			console.log('entering: vCenter');
+			
+			var h = e.outerHeight();
+			var parH = e.parent().outerHeight();
+			var etop = (parH - h)/2;
+			etop = etop > 0 ? etop : 0;
+			e.css('top',etop);
+		
+		}catch(er){
+			console.error(er + ': vCenter');
+		}
 	};
 	
+	// calls vCenter and recenters element if the window size is changed
 	var vCenterInit = function(e){
-		vCenter(e);
-		$(window).resize(function(){
+		try{
+			console.log('entering: vCenterInit');
+			
 			vCenter(e);
-		});
+			$(window).resize(function(){
+				vCenter(e);
+			});
+			
+		}catch(er){
+			console.error(er + ': vCenterInit');
+		}
 	};
 	
 	$('.vCentered').each(function(i,obj){
@@ -45,111 +60,120 @@ $(function(){
   //  -able: drag and revert back, change page with clicks, drag between pages
   //  -later: swipe between pages (momentum sensitive)
  
-	var dragStartHandler = function(){
-		var pos = $('#set').offset();
-		pages.isDrag = true;
-		drag.posi.x = pos.left;
-		drag.posi.y = pos.top;
-	};
-	
-	var dragDragHandler = function(){
-		
-	};
-	
-	var dragStopHandler = function(){
-		var pos = $('#set').offset();
-		pages.page = '';
-		drag.posf.x = pos.left;
-		drag.posf.y = pos.top;
-		
-		if(drag.posf.x < pages.thresholdH){
-			if(drag.posf.y < pages.thresholdV){
-				toPageB();
-			}else{
-				toPageY();
-			};
-		}else{
-		  if(drag.posf.y < pages.thresholdV){
-		  	toPageG();
-		  }else{
-		  	toPageR();
-		  };
+	// the handler for when the dragging the set starts (later use for momentum sensitivity)
+	var dragSetStartHandler = function(){
+		try{
+			console.log('entering: dragSetStartHandler')
+			
+			var pos = $('#set').offset();
+			pages.isDrag = true;
+			drag.posi.x = pos.left;
+			drag.posi.y = pos.top;
+			
+		}catch(er){
+			console.error(er + ': dragSetStartHandler');
 		}
 	};
 	
-  $('#set').draggable({ revert:false, 
-												scroll:false,
-												cancel:"#map",
-												start:dragStartHandler,
-											  drag:dragDragHandler,
-											  stop:dragStopHandler });
+	// the handler used when set is dragged (later use for momentum sensitivity)
+	var dragSetDragHandler = function(){
+		try{
+			console.log('entering: dragSetDragHandler');
+		}catch(er){
+			console.error(er + ': dragSetDragHandler');
+		}
+	};
 	
-  var toPageR = function() {
-    if(pages.page !== 'r'){
-			var bpos = $('#rblock').offset();
-			var spos = $('#set').offset();
-      $('#set').animate({ top: spos.top - bpos.top,
-													left: spos.left - bpos.left}, {duration:300,
-																												 complete:function(){$('#set').stop(true,false);}});
-      pages.page = 'r';
-    }
-  };
+	var dragSetStopHandler = function(){
+		try{
+			console.log('entering: dragSetStopHandler')
+			
+			var pos = $('#set').offset();
+			pages.page = '';
+			drag.posf.x = pos.left;
+			drag.posf.y = pos.top;
+		
+			if(drag.posf.x < pages.thresholdH){
+				if(drag.posf.y < pages.thresholdV){
+					toPage('b',pages.diffV,pages.diffH);
+				}else{
+					toPage('y',0,pages.diffH);
+				};
+			}else{
+		  	if(drag.posf.y < pages.thresholdV){
+		  		toPage('g',pages.diffV,0);
+		 	 	}else{
+		  		toPage('r',0,0);
+		  	};
+			}
+		
+		}catch(er){
+			console.error(er + ': dragSetStopHandler')
+		}
+	};
 	
-  var toPageG = function() {
-    if(pages.page !== 'g'){
-			var bpos = $('#gblock').offset();
-			var spos = $('#set').offset();
-      $('#set').animate({	top: spos.top - bpos.top + pages.diffV,
-													left: spos.left - bpos.left }, {duration:300,
-																													complete:function(){$('#set').stop(true,false);}});
-      pages.page = 'g';
-    }
-  };
+  $('#set').draggable({ 
+		revert:false, 
+		scroll:false,
+		cancel:"#map",
+		start:dragSetStartHandler,
+		drag:dragSetDragHandler,
+		stop:dragSetStopHandler 
+	});
 	
-  var toPageB = function() {
-    if(pages.page !== 'b'){
-			var bpos = $('#bblock').offset();
-			var spos = $('#set').offset();
-      $('#set').animate({	top: spos.top - bpos.top + pages.diffV,
-													left: spos.left - bpos.left + pages.diffH }, {duration:300,
-																																				complete:function(){$('#set').stop(true,false);}});
-      pages.page = 'b';
-    }
-  };
-	
-  var toPageY = function() {
-    if(pages.page !== 'y'){
-			var bpos = $('#yblock').offset();
-			var spos = $('#set').offset();
-      $('#set').animate({ top: spos.top - bpos.top,
-													left: spos.left - bpos.left + pages.diffH }, {duration:300,
-																																				complete:function(){$('#set').stop(true,false);}});
-      pages.page = 'y';
-    }
+	// animate to the page specified by the prefix (later fix offsetV and H when page objects are made)
+  var toPage = function(prefix,offsetV,offsetH) {
+		try{
+			console.log('entering: toPage');
+			
+			if(pages.page !== prefix){
+				var bpos = $('#' + prefix + 'block').offset();
+				var spos = $('#set').offset();
+				
+				$('#set').animate(
+					{top:spos.top - bpos.top + offsetV, left:spos.left - bpos.left + offsetH}, 
+					300, 
+					function(){
+						$('#set').stop(true,false);
+					}
+				);
+      	pages.page = prefix;
+   	 	}
+			
+		}catch(er){
+			console.error(er + ': toPage');
+		}
   };
 			
   $('#rblock').click(function() {
-    toPageR()
+    toPage('r',0,0);
   });
   $('#gblock').click(function() {
-    toPageG()
+    toPage('g',pages.diffV,0);
   });
   $('#bblock').click(function() {
-    toPageB()
+    toPage('b',pages.diffV,pages.diffH);
   });
   $('#yblock').click(function() {
-    toPageY()
+    toPage('y',0,pages.diffH);
   });
 	
 	//set up a vertical scroll on an element with id 'id', wrapper height wrapH, and height scrolled h
 	var verticalScrollInit = function(id,h,wrapH){
-		var offs = $('#' + id).offset();
-		if(h > wrapH){
-			$('#' + id).draggable({
-		  	axis:'y',
-		  	scroll:false,
-      	containment:[offs.left, offs.top - h + wrapH, offs.left, offs.top]
-			});
+		try{
+			console.log('entering: verticalScrollInit');
+		
+			var offs = $('#' + id).offset();
+			if(h > wrapH){
+				$('#' + id).draggable({
+		  		axis:'y',
+		  		scroll:false,
+      		containment:[offs.left, offs.top - h + wrapH, offs.left, offs.top]
+				});
+			}
+			
+		}catch(er){
+			console.error(er + 'verticalScrollInit');
 		}
 	};
 	
@@ -158,20 +182,14 @@ $(function(){
 	    $(this).focus();
 	});
 	
-  // watchLocation watches current location using html5 geolocation
-  var watchLocation = function(){
-    function findlocation(){
-			if(navigator.geolocation) {
-        var watchID = navigator.geolocation.watchPosition(userNewLocation);
-      } else {
-	      //some popup or flash that the browser does not support this
-      }
-		};
-		function userNewLocation(position) {
-    	var userLat = position.coords.latitude;
-   	 	var userLng = position.coords.longitude;
+	function userNewLocation(position) {
+		try{
+			console.log('entering: userNewLocation');
+		
+  		var userLat = position.coords.latitude;
+ 	 		var userLng = position.coords.longitude;
 			here = new google.maps.LatLng(userLat, userLng);
-			
+		
 			//check if new location is within bounds of visit location
 			if(currentVisit.isActive){
 				var thresholdRadius = 0.001;
@@ -182,52 +200,89 @@ $(function(){
 					endVisit();
 				}
 			}
-  	};
-		findlocation();
+			
+		}catch(er){
+			console.error(er + ': userNewLocation');
+		}
+	};
+	
+  // watchLocation watches current location using html5 geolocation
+  var watchLocation = function(){
+		try{
+			console.log('entering: watchLocation');
+			
+			var watchID;
+			
+			if(navigator.geolocation) {
+        watchID = navigator.geolocation.watchPosition(userNewLocation);
+      } else {
+	      //some popup or flash that the browser does not support this
+      }
+			
+		}catch(er){
+			console.error(er + ': watchLocation');
+		}
   }; 
   watchLocation();
 	
 	//initialize google map, will start centered on current location until search is made
 	var initializeMap = function(){
-		var fake = new google.maps.LatLng(41.869727,-87.80585889999999);
-		var mapOptions = {
-			center:fake,
-			zoom:17,
-			mapTypeId:google.maps.MapTypeId.ROADMAP
-		};
-		map = new google.maps.Map(document.getElementById("map"),mapOptions);
+		try{
+			console.log('entering: initializeMap');
+			
+			var userLocation, mapOptions; 
+		
+			if(here){
+				userLocation = here; //use user location for the initial center of map
+			}else{
+				userLocation = new google.maps.LatLng(41.88,-87.627); //for testing chrome locally, here will not be defined
+			}
+		
+			mapOptions = {
+				center:userLocation,
+				zoom:17,
+				mapTypeId:google.maps.MapTypeId.ROADMAP
+			};
+			map = new google.maps.Map(document.getElementById("map"),mapOptions);
+			
+		}catch(er){
+			console.error(er + ': initializeMap');
+		}
 	};
 	initializeMap();
 	
 	//adds missing fields to search results to prevent errors
 	var fixResults = function(){
-		var len = listedLocations.length;
-		
-		for(var index = 0; index < len; index++){
-			if(listedLocations[index].opening_hours === undefined){
-				listedLocations[index].opening_hours = {open_now:'?'};
+		try{
+			console.log('entering: fixResults');
+			
+			var len = listedLocations.length;
+			
+			for(var index = 0; index < len; index++){
+				if(listedLocations[index].opening_hours === undefined){
+					listedLocations[index].opening_hours = {open_now:'?'};
+				}
+				if(listedLocations[index].price_level === undefined){
+					listedLocations[index].price_level = '?';
+				}
+				if(listedLocations[index].rating === undefined){
+					listedLocations[index].rating = '?';
+				}
 			}
-			if(listedLocations[index].price_level === undefined){
-				listedLocations[index].price_level = '?';
-			}
-			if(listedLocations[index].rating === undefined){
-				listedLocations[index].rating = '?';
-			}
-		}
-	}
+		}catch(er){
+			console.error(er + ': fixResults');
+		}	
+	};
+	
+	// left off here with try catches =====================================
 	
 	//removes any any present search results and replaces with new results 
 	var showResults = function(locations,searchType) {
 		
 		var listLocationTemplate = _.template($('#listLocationTemplate').html());
+		var displayed = $('#searchResults').attr('displayed');
 		var locationsToInsert = '';
 		var len = locations.length;
-		
-		for(var index = 0; index < len; index++){
-			templatedLocation = listLocationTemplate(locations[index]);
-			templatedLocation= templatedLocation.replace('listedLocation_i','listedLocation_' + index);
-			locationsToInsert += templatedLocation;	
-		}
 		
 		var pullDownResults = function(){
 			$('#searchResults').empty();
@@ -248,7 +303,11 @@ $(function(){
 			addMapMarkers();
 		}
 		
-		var displayed = $('#searchResults').attr('displayed');
+		for(var index = 0; index < len; index++){
+			templatedLocation = listLocationTemplate(locations[index]);
+			templatedLocation= templatedLocation.replace('listedLocation_i','listedLocation_' + index);
+			locationsToInsert += templatedLocation;	
+		}
 		
 		if(displayed == 'none'){
 			pullDownResults();
@@ -520,7 +579,7 @@ $(function(){
 		
 		drawPlot();
 		initClickables();
-		toPageY();
+		toPage('y',0,pages.diffH);
 	};
 	
 	// start a visit to the selected location
