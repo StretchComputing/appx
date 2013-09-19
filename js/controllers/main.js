@@ -9,19 +9,77 @@ var drag = { 	posi:  {x:0,y:0},
 var map; //for the google map display
 var mapMarkers = [];
 var currentVisit = {isActive:false};
+var showLoading, endLoading;
 
 $(function(){
 	
 	var service = new google.maps.places.PlacesService(document.getElementById('targetSearchResults'));
 	var geocoder = new google.maps.Geocoder();
 	
+	// disable an element by placing partly translucent shield over 
 	var disableElement = function(elementId){
 		try{
 			console.log('entering: disableElement');
 			
+			var e = $('#' + elementId);
+			var ePosType = e.css('position');
+			var shieldStyle = {
+				position:'absolute',
+				height: e.height(),
+				width: e.width(),
+				top: ePosType == 'relative' ? e.parent().offset().top - e.offset().top : e.css('top'),
+				left: ePosType == 'relative' ? e.parent().offset().left - e.offset().left : e.css('left'),
+				'background-color':'#888',
+				opacity:.7,
+				'z-index':98
+			};
+			
+			e.after('<div style="position:absolute" id="shield_' + elementId + '"></div>');
+			$('#shield_' + elementId).css(shieldStyle);
 			
 		}catch(er){
 			console.error(er + ': disableElement');
+		}
+	};
+	
+	//enable an element removing shield
+	var enableElement = function(elementId){
+		try{
+			console.log('entering: enableElement');
+			
+			$('#shield_' + elementId).remove();
+			
+		}catch(er){
+			console.error(er + ': enableElement');
+		}
+	};
+	
+	showLoading = function(){
+		try{
+			console.log('entering: showLoading');
+			
+			var squareWidth, setWrapperWidth;
+			
+			squareLoadingTemplate = _.template($('#squareLoadingTemplate').html());
+			$('#set').after(squareLoadingTemplate({}));
+			
+			squareWidth = $('#squareLoading').width();
+			setWrapperWidth = $('.setWrapper').width();
+			$('#squareLoading').css('left', (setWrapperWidth-squareWidth)/2);
+			
+		}catch(er){
+			console.error(er + ': showLoading');
+		}
+	};
+	
+	endLoading = function(){
+		try{
+			console.log('entering: endLoading');
+			
+			$('#squareLoading').remove();
+			
+		}catch(er){
+			console.error(er + ': endLoading');
 		}
 	};
 	
@@ -372,19 +430,23 @@ $(function(){
 		var searchOptions = {	
 			location: here,
 			rankBy:google.maps.places.RankBy.DISTANCE,
-			types:['bakery','bar','cafe','restaurant']};
+			types:['bakery','bar','cafe','restaurant']
+		};
 			
-    service.nearbySearch(
+		disableElement('set');
+		showLoading();
+    
+		service.nearbySearch(
 			searchOptions, 
       function(data,status) {
+				endLoading();
+				enableElement('set');
 				listedLocations = data;
 				fixResults();
 				showResults(listedLocations,'nearby');
 			}
 		);
   });
-	
-	// left off here with try catches =====================================
 	
 	var initClickables = function(){
 		try{
@@ -420,6 +482,9 @@ $(function(){
 
 		var address = $(this).val();
 		
+		disableElement('set');
+		showLoading();
+		
 		geocoder.geocode({'address':address}, function(data,status){
 			var there = data[0].geometry.location;
 			var searchOptions = {
@@ -430,6 +495,8 @@ $(function(){
 	    service.nearbySearch(
 				searchOptions, 
 	      function(data,status) {
+					endLoading();
+					enableElement('set');
 					listedLocations = data;
 					fixResults();
 					showResults(listedLocations,'other');
@@ -659,6 +726,8 @@ $(function(){
 		try{
 			console.log('entering: startVisit');
 			
+			disableElement('startVisitButton');
+			
 			currentVisit.isActive = true;
 			currentVisit.place = selectedLocation;
 			currentVisit.startTime = new Date();
@@ -743,6 +812,7 @@ $(function(){
 			
 			$('#liveVisit').remove();
 			currentVisit = {isActive:false};
+			enableElement('startVisitButton');
 	
 		}catch(er){
 			console.error(er + ': endVisit');

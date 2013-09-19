@@ -534,3 +534,58 @@ textarea{
 #visitBump span{
 	font:12px courier,monospace;
 }
+
+#squareLoading{
+	position:absolute;
+	position:absolute;
+	top:30%;
+	left:30%;
+	width:100px;
+	height:100px;
+	background-color:#000;
+	z-index:9998;
+	
+}
+
+#dashedSquare{
+	stroke: white;
+	stroke-linecap: round;
+	stroke-width: 50;
+	stroke-dasharray: 125 125;
+	stroke-dashoffset: 0;
+	stroke-linejoin: round;
+	animation: spin 10.0s infinite linear;
+	-webkit-animation: spin 10.0s infinite linear;
+}
+
+@keyframes spin {
+	0% {
+		stroke:red;
+	}
+	37.5% {
+		stroke:green;
+	}
+	67.5% {
+		stroke:blue;
+	}
+	100% {
+		stroke-dashoffset: -5000;
+		stroke:red;
+	}
+}
+
+@-webkit-keyframes spin{
+	0% {
+		stroke:red;
+	}
+	37.5% {
+		stroke:green;
+	}
+	67.5% {
+		stroke:blue;
+	}
+	100% {
+		stroke-dashoffset: -5000;
+		stroke:red;
+	}
+}

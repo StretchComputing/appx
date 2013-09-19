@@ -25,7 +25,7 @@
 				<div class="pageBlock" id="yblock">
 					<div class="header"><div class="vCentered">location info</div></div>
 					<div class="ycontent, locationInfoOptions">
-						<div class="nowVisiting clickable"><div class="vCentered">start visit</div></div>
+						<div class="nowVisiting clickable" id="startVisitButton"><div class="vCentered">start visit</div></div>
 						<div class="wantToGo clickable"><div class="vCentered">want to go</div></div>
 						<div class="rateReview clickable"><div class="vCentered">rate/ review</div></div>
 						<div class="nextPlace clickable"><div class="vCentered">next place</div></div>
@@ -151,6 +151,13 @@
 					<div class="clickable" id="visitBump">+bump</div>
 				</div>
 			</div>
+		</script>
+		
+		<script type="text/template" id="squareLoadingTemplate">
+			<svg xmlns="http://www.w3.org/2000/svg" version="1.2" baseProfile="tiny" class="progress" viewBox="0 0 340 340" id="squareLoading">
+				<rect width="340" height="340" x="0" y="0" fill="#222" id="squareLoadingBack"></rect>
+				<rect width="250" height="250" x="45" y="45" fill="none" id="dashedSquare"></rect>
+			</svg> 
 		</script>
 		
   </body>
