@@ -3,7 +3,7 @@ var TEXTSEARCH = [
 	{word:'near'},
 	{word:'nearby'},
 	{word:'open',options:{openNow:true}},
-	{word:'chaep',options:{maxPrice:2}},
+	{word:'cheap',options:{maxPrice:2}},
 	{word:'bar'},
 	{word:'bars'},
 	{word:'pub'},

@@ -1,34 +1,56 @@
-var here;// variable for current location
-var listedLocations; //variable for list of locations that google returns
-var selectedLocation;
-var pages;
-var drag = { 	posi:  {x:0,y:0},
-             	timei: 0,
-       			 	posf:  {x:0,y:0},
-             	timef: 0  };
-var map; //for the google map display
-var mapMarkers = [];
-var currentVisit = {isActive:false};
+var APPX = {
+	here:undefined,                            // user current location
+	listedLocations:undefined,                 // list of locations that google returns
+	selectedLocation:undefined,                // selected location with more detailed info
+	mapMarkers:[],											 			 // marked Locations on the Google Map
+	pages:undefined,                      		 // info associated with the collective pages
+	currentVisit:{isActive:false},             // the current Visit taking place
+	services:{ 
+		placeService:undefined, 
+		geocoder:undefined, 
+		map:undefined 
+	},  																			 // various services (eg. Google Place Service, Geocoder, and Google Map)
+	drag: { 																	 
+		posi: {x:0,y:0},
+	  timei: 0,
+	  posf: {x:0,y:0},
+	  timef: 0 
+	},																				// later will use for momentum sensitive drags (or some variation of this)
+	
+}
+
 var showLoading, endLoading;
 
 $(function(){
 	
-	var service = new google.maps.places.PlacesService(document.getElementById('targetSearchResults'));
-	var geocoder = new google.maps.Geocoder();
+	// start services first thing when document is ready
+	APPX.services.placeService = new google.maps.places.PlacesService(document.getElementById('targetSearchResults'));
+	APPX.services.geocoder = new google.maps.Geocoder();
 	
-	// disable an element by placing partly translucent shield over 
+	// object to keep track of page information
+	APPX.pages = { 
+		page:'r',                                 //intitially on red page
+		diffH:window.innerWidth * 0.03,
+		diffV:window.innerHeight * 0.03,
+		thresholdH:$('#rblock').width() * -0.5,
+		thresholdV:$('#rblock').height() * -0.5 
+	};
+	
+	// disable an element by placing partly translucent shield over it
 	var disableElement = function(elementId){
 		try{
 			console.log('entering: disableElement');
 			
-			var e = $('#' + elementId);
-			var ePosType = e.css('position');
-			var shieldStyle = {
+			var e, ePosType, shieldStyle;
+			
+			e = $('#' + elementId);
+			ePosType = e.css('position');
+			shieldStyle = {
 				position:'absolute',
 				height: e.height(),
 				width: e.width(),
-				top: ePosType == 'relative' ? e.parent().offset().top - e.offset().top : e.css('top'),
-				left: ePosType == 'relative' ? e.parent().offset().left - e.offset().left : e.css('left'),
+				top: e.parent().offset().top - e.offset().top,
+				left: e.parent().offset().left - e.offset().left,
 				'background-color':'#888',
 				opacity:.7,
 				'z-index':98
@@ -54,7 +76,8 @@ $(function(){
 		}
 	};
 	
-	showLoading = function(){
+	// show the loading animation
+	var showLoading = function(){
 		try{
 			console.log('entering: showLoading');
 			
@@ -72,7 +95,8 @@ $(function(){
 		}
 	};
 	
-	endLoading = function(){
+	// remove the loading animation
+	var endLoading = function(){
 		try{
 			console.log('entering: endLoading');
 			
@@ -88,11 +112,13 @@ $(function(){
 		try{
 			console.log('entering: vCenter');
 			
-			var h = e.outerHeight();
-			var parH = e.parent().outerHeight();
-			var etop = (parH - h)/2;
-			etop = etop > 0 ? etop : 0;
-			e.css('top',etop);
+			var eH, parH, eTop
+			
+			eH = e.outerHeight();
+			parH = e.parent().outerHeight();
+			eTop = (parH - eH)/2;
+			eTop = eTop > 0 ? eTop : 0;
+			e.css('top',eTop);
 		
 		}catch(er){
 			console.error(er + ': vCenter');
@@ -118,15 +144,9 @@ $(function(){
 		vCenterInit($(this));
 	});
 	
-	pages = { page:'r',
-						diffH:window.innerWidth * 0.03,
-						diffV:window.innerHeight * 0.03,
-					  thresholdH:$('#rblock').width() * -0.5,
-						thresholdV:$('#rblock').height() * -0.5};
-	
   //Navigation between pages
   //  -able: drag and revert back, change page with clicks, drag between pages
-  //  -later: swipe between pages (momentum sensitive)
+  //  -later: momentum sensitive swipes
  
 	// the handler for when the dragging the set starts (later use for momentum sensitivity)
 	var dragSetStartHandler = function(){
@@ -134,9 +154,9 @@ $(function(){
 			console.log('entering: dragSetStartHandler')
 			
 			var pos = $('#set').offset();
-			pages.isDrag = true;
-			drag.posi.x = pos.left;
-			drag.posi.y = pos.top;
+			APPX.pages.isDrag = true;
+			APPX.drag.posi.x = pos.left;
+			APPX.drag.posi.y = pos.top;
 			
 		}catch(er){
 			console.error(er + ': dragSetStartHandler');
@@ -152,26 +172,28 @@ $(function(){
 		}
 	};
 	
+	// the handler used when dragging set stops
 	var dragSetStopHandler = function(){
 		try{
 			console.log('entering: dragSetStopHandler')
 			
 			var pos = $('#set').offset();
-			pages.page = '';
-			drag.posf.x = pos.left;
-			drag.posf.y = pos.top;
+			
+			APPX.pages.page = '';
+			APPX.drag.posf.x = pos.left;
+			APPX.drag.posf.y = pos.top;
 		
-			if(drag.posf.x < pages.thresholdH){
-				if(drag.posf.y < pages.thresholdV){
-					toPage('b',pages.diffV,pages.diffH);
+			if(APPX.drag.posf.x < APPX.pages.thresholdH){
+				if(APPX.drag.posf.y < APPX.pages.thresholdV){
+					toPage('b');
 				}else{
-					toPage('y',0,pages.diffH);
+					toPage('y');
 				};
 			}else{
-		  	if(drag.posf.y < pages.thresholdV){
-		  		toPage('g',pages.diffV,0);
+		  	if(APPX.drag.posf.y < APPX.pages.thresholdV){
+		  		toPage('g');
 		 	 	}else{
-		  		toPage('r',0,0);
+		  		toPage('r');
 		  	};
 			}
 		
@@ -190,22 +212,44 @@ $(function(){
 	});
 	
 	// animate to the page specified by the prefix (later fix offsetV and H when page objects are made)
-  var toPage = function(prefix,offsetV,offsetH) {
+  var toPage = function(prefix) {
 		try{
 			console.log('entering: toPage');
 			
-			if(pages.page !== prefix){
-				var bpos = $('#' + prefix + 'block').offset();
-				var spos = $('#set').offset();
+			var bpos, spos, diffV, diffH;
+			
+			if(APPX.pages.page !== prefix){
+				
+				switch(prefix){
+				case 'r':
+					diffV = 0;
+					diffH = 0;
+					break;
+				case 'g':
+					diffV = APPX.pages.diffV;
+					diffH = 0;
+					break;
+				case 'b':
+					diffV = APPX.pages.diffV;
+					diffH = APPX.pages.diffH;
+					break;
+				case 'y':
+					diffV = 0;
+					diffH = APPX.pages.diffH;
+					break;
+				}
+				
+				bpos = $('#' + prefix + 'block').offset();
+				spos = $('#set').offset();
 				
 				$('#set').animate(
-					{top:spos.top - bpos.top + offsetV, left:spos.left - bpos.left + offsetH}, 
+					{top:spos.top - bpos.top + diffV, left:spos.left - bpos.left + diffH}, 
 					300, 
 					function(){
 						$('#set').stop(true,false);
 					}
 				);
-      	pages.page = prefix;
+      	APPX.pages.page = prefix;
    	 	}
 			
 		}catch(er){
@@ -214,16 +258,16 @@ $(function(){
   };
 			
   $('#rblock').click(function() {
-    toPage('r',0,0);
+    toPage('r');
   });
   $('#gblock').click(function() {
-    toPage('g',pages.diffV,0);
+    toPage('g');
   });
   $('#bblock').click(function() {
-    toPage('b',pages.diffV,pages.diffH);
+    toPage('b');
   });
   $('#yblock').click(function() {
-    toPage('y',0,pages.diffH);
+    toPage('y');
   });
 	
 	//set up a vertical scroll on an element with id 'id', wrapper height wrapH, and height scrolled h
@@ -232,6 +276,7 @@ $(function(){
 			console.log('entering: verticalScrollInit');
 		
 			var offs = $('#' + id).offset();
+			
 			if(h > wrapH){
 				$('#' + id).draggable({
 		  		axis:'y',
@@ -254,16 +299,18 @@ $(function(){
 		try{
 			console.log('entering: userNewLocation');
 		
-  		var userLat = position.coords.latitude;
- 	 		var userLng = position.coords.longitude;
-			here = new google.maps.LatLng(userLat, userLng);
+			var userLat, userLng, thresholdRadius, diffLat, diffLng, distance;
+  		
+			userLat = position.coords.latitude;
+ 	 		userLng = position.coords.longitude;
+			APPX.here = new google.maps.LatLng(userLat, userLng);
 		
 			//check if new location is within bounds of visit location
-			if(currentVisit.isActive){
-				var thresholdRadius = 0.001;
-				var diffLat = userLat - currentVisit.place.lat;
-				var diffLng = userLng - currentVisit.place.lng
-				var distance = Math.sqrt(diffLat*diffLat + diffLng*diffLng);
+			if(APPX.currentVisit.isActive){
+				thresholdRadius = 0.001;
+				diffLat = userLat - APPX.currentVisit.place.lat;
+				diffLng = userLng - APPX.currentVisit.place.lng
+				distance = Math.sqrt(diffLat*diffLat + diffLng*diffLng);
 				if(distance > thresholdRadius){
 					endVisit();
 				}
@@ -300,10 +347,10 @@ $(function(){
 			
 			var userLocation, mapOptions; 
 		
-			if(here){
-				userLocation = here; //use user location for the initial center of map
+			if(APPX.here){
+				userLocation = APPX.here; //use user location for the initial center of map
 			}else{
-				userLocation = new google.maps.LatLng(41.88,-87.627); //for testing chrome locally, here will not be defined
+				userLocation = new google.maps.LatLng(41.88,-87.627); //for testing chrome locally, APPX.here will not be defined
 			}
 		
 			mapOptions = {
@@ -311,7 +358,7 @@ $(function(){
 				zoom:17,
 				mapTypeId:google.maps.MapTypeId.ROADMAP
 			};
-			map = new google.maps.Map(document.getElementById("map"),mapOptions);
+			APPX.services.map = new google.maps.Map(document.getElementById("map"),mapOptions);
 			
 		}catch(er){
 			console.error(er + ': initializeMap');
@@ -319,22 +366,22 @@ $(function(){
 	};
 	initializeMap();
 	
-	//adds missing fields to search results to prevent errors
+	//adds missing fields to search results (APPX.listedLocations) to prevent errors
 	var fixResults = function(){
 		try{
 			console.log('entering: fixResults');
 			
-			var len = listedLocations.length;
+			var len = APPX.listedLocations.length;
 			
 			for(var index = 0; index < len; index++){
-				if(listedLocations[index].opening_hours === undefined){
-					listedLocations[index].opening_hours = {open_now:'?'};
+				if(APPX.listedLocations[index].opening_hours === undefined){
+					APPX.listedLocations[index].opening_hours = {open_now:'?'};
 				}
-				if(listedLocations[index].price_level === undefined){
-					listedLocations[index].price_level = '?';
+				if(APPX.listedLocations[index].price_level === undefined){
+					APPX.listedLocations[index].price_level = '?';
 				}
-				if(listedLocations[index].rating === undefined){
-					listedLocations[index].rating = '?';
+				if(APPX.listedLocations[index].rating === undefined){
+					APPX.listedLocations[index].rating = '?';
 				}
 			}
 		}catch(er){
@@ -404,31 +451,31 @@ $(function(){
 			console.log('entering: addMapMarkers');
 			
 			//First clear any existing markers and remove reference to them
-			if(mapMarkers){
-				for(i in mapMarkers){
-					mapMarkers[i].setMap(null);
+			if(APPX.mapMarkers){
+				for(i in APPX.mapMarkers){
+					APPX.mapMarkers[i].setMap(null);
 				}
-				mapMarkers = [];
+				APPX.mapMarkers = [];
 			}
 			//now add new markers
-			for(i in listedLocations){
-				mapMarkers[i] = new google.maps.Marker({
-					position:listedLocations[i].geometry.location,
-					map:map
+			for(i in APPX.listedLocations){
+				APPX.mapMarkers[i] = new google.maps.Marker({
+					position:APPX.listedLocations[i].geometry.location,
+					map:APPX.services.map
 				});
 				if(i == 0){
-					map.panTo(listedLocations[i].geometry.location);
+					APPX.services.map.panTo(APPX.listedLocations[i].geometry.location);
 				}
 			}
 		}catch(er){
-			console.error(er + ': addMaoMarkers');
+			console.error(er + ': addMapMarkers');
 		}
 	};
 	
   //Get Google places info: locations nearby user location
   $('#nearbySearch').click(function() {
 		var searchOptions = {	
-			location: here,
+			location: APPX.here,
 			rankBy:google.maps.places.RankBy.DISTANCE,
 			types:['bakery','bar','cafe','restaurant']
 		};
@@ -436,14 +483,14 @@ $(function(){
 		disableElement('set');
 		showLoading();
     
-		service.nearbySearch(
+		APPX.services.placeService.nearbySearch(
 			searchOptions, 
       function(data,status) {
 				endLoading();
 				enableElement('set');
-				listedLocations = data;
+				APPX.listedLocations = data;
 				fixResults();
-				showResults(listedLocations,'nearby');
+				showResults(APPX.listedLocations,'nearby');
 			}
 		);
   });
@@ -485,25 +532,34 @@ $(function(){
 		disableElement('set');
 		showLoading();
 		
-		geocoder.geocode({'address':address}, function(data,status){
-			var there = data[0].geometry.location;
-			var searchOptions = {
-				location: there,
-				rankBy:google.maps.places.RankBy.DISTANCE,
-				types:['bakery','bar','cafe','restaurant']};
+		APPX.services.geocoder.geocode(
+			{'address':address}, 
+			function(data,status){
 				
-	    service.nearbySearch(
-				searchOptions, 
-	      function(data,status) {
-					endLoading();
-					enableElement('set');
-					listedLocations = data;
-					fixResults();
-					showResults(listedLocations,'other');
-	      }
-			);
+				var there, searchOptions;
 			
-		});
+				there = data[0].geometry.location;
+				
+				searchOptions = {
+					location: there,
+					rankBy:google.maps.places.RankBy.DISTANCE,
+					types:['bakery','bar','cafe','restaurant']
+				};
+				
+	  		APPX.services.placeService.nearbySearch(
+					searchOptions, 
+	      	function(data,status) {
+						
+						endLoading();
+						enableElement('set');
+						APPX.listedLocations = data;
+						fixResults();
+						showResults(APPX.listedLocations,'other');
+	      	
+					}
+				);
+			}
+		);
 	});
 	
 	//adds events for selecting a location from the search results
@@ -515,18 +571,25 @@ $(function(){
 				if(!$(this).hasClass('selectedLocation')){			
 					var selectedId = $(this).attr('id');
 					var placeIndex = getIndexById(selectedId);
-					selectedLocation = listedLocations[placeIndex];
+					APPX.selectedLocation = APPX.listedLocations[placeIndex];
 			
-					$('.listedLocation').removeClass('selectedLocation');
+					if($('.selectedLocation')[0]){
+						var formerSelect = $('.selectedLocation');
+						var formerIndex = getIndexById(formerSelect.attr('id'));
+						APPX.mapMarkers[formerIndex].setAnimation(null);
+						formerSelect.removeClass('selectedLocation')
+					}
+
 					$(this).addClass('selectedLocation');
+					APPX.mapMarkers[placeIndex].setAnimation(google.maps.Animation.BOUNCE);
 			
-					var service = new google.maps.places.PlacesService(document.getElementById('locationInfoContainer'));
-					service.getDetails(
-						{reference:selectedLocation.reference},
+					//var service = new google.maps.places.PlacesService(document.getElementById('locationInfoContainer'));
+					APPX.services.placeService.getDetails(
+						{reference:APPX.selectedLocation.reference},
 			      function(data,status){
-							selectedLocation = data; //assign to more detailed version
+							APPX.selectedLocation = data; //assign to more detailed version
 							fixLocation();
-							showLocationInfo(selectedLocation);
+							showLocationInfo(APPX.selectedLocation);
 						}
 					);		
 				}
@@ -542,59 +605,59 @@ $(function(){
 			console.log('entering: fixLocation');
 		
 			//for appx format specific input
-			selectedLocation.appxForm = {};
+			APPX.selectedLocation.appxForm = {};
 		
 			//location should have a name, probably not necessary
-			if(!selectedLocation.name){
-				selectedLocation.name = "name unavailable";
+			if(!APPX.selectedLocation.name){
+				APPX.selectedLocation.name = "name unavailable";
 			}
 		
-			if(!selectedLocation.formatted_address){
-				selectedLocation.formatted_address = selectedLocation.vicinity + " (approximately)";
+			if(!APPX.selectedLocation.formatted_address){
+				APPX.selectedLocation.formatted_address = APPX.selectedLocation.vicinity + " (approximately)";
 			}
 		
-			if(!selectedLocation.formatted_phone_number){
-				selectedLocation.formatted_phone_number = "(phone number unknown)";
+			if(!APPX.selectedLocation.formatted_phone_number){
+				APPX.selectedLocation.formatted_phone_number = "(phone number unknown)";
 			}
 		
-			if(!selectedLocation.website){
-				selectedLocation.website = "(website unknown)";
+			if(!APPX.selectedLocation.website){
+				APPX.selectedLocation.website = "(website unknown)";
 			}
 		
-			if(!selectedLocation.rating){
-				selectedLocation.rating = "(rating unknown)";
+			if(!APPX.selectedLocation.rating){
+				APPX.selectedLocation.rating = "(rating unknown)";
 			}
 		
-			if(!selectedLocation.reviews){
-				selectedLocation.reviews = [{author_name:"(no reviews for this location)",text:""}];
+			if(!APPX.selectedLocation.reviews){
+				APPX.selectedLocation.reviews = [{author_name:"(no reviews for this location)",text:""}];
 			}
 		
-			if(!selectedLocation.price_level){
-				selectedLocation.appxForm.price = "(price level unknown)";
+			if(!APPX.selectedLocation.price_level){
+				APPX.selectedLocation.appxForm.price = "(price level unknown)";
 			}else{
-				var p = selectedLocation.price_level;
+				var p = APPX.selectedLocation.price_level;
 				switch(p){
 				case 1:
-					selectedLocation.appxForm.price = "$";
+					APPX.selectedLocation.appxForm.price = "$";
 					break;
 				case 2:
-					selectedLocation.appxForm.price = "$$";
+					APPX.selectedLocation.appxForm.price = "$$";
 					break;
 				case 3:
-					selectedLocation.appxForm.price = "$$$";
+					APPX.selectedLocation.appxForm.price = "$$$";
 					break;
 				case 4:
-					selectedLocation.appxForm.price = "$$$$";
+					APPX.selectedLocation.appxForm.price = "$$$$";
 					break;
 				}
 			}
 		
-			if(!selectedLocation.opening_hours){
-				selectedLocation.appxForm.isOpen = "(open status unknown)";
-				selectedLocation.appxForm.regularHours = "(hours of operation unknown)";
+			if(!APPX.selectedLocation.opening_hours){
+				APPX.selectedLocation.appxForm.isOpen = "(open status unknown)";
+				APPX.selectedLocation.appxForm.regularHours = "(hours of operation unknown)";
 			}else{
-				selectedLocation.appxForm.isOpen = (selectedLocation.opening_hours.open_now ? "open now" : "not open now");
-				selectedLocation.appxForm.regularHours = formatRegularHours(selectedLocation.opening_hours.periods);
+				APPX.selectedLocation.appxForm.isOpen = (APPX.selectedLocation.opening_hours.open_now ? "open now" : "not open now");
+				APPX.selectedLocation.appxForm.regularHours = formatRegularHours(APPX.selectedLocation.opening_hours.periods);
 			}
 	
 		}catch(er){
@@ -683,17 +746,20 @@ $(function(){
 		try{
 			console.log('entering: showLocationInfo');
 			
-			var locationInfoTemplate = _.template($('#locationInfoTemplate').html());
-			var reviewTemplate = _.template($('#reviewTemplate').html());
-			var locationPlotTemplate = _.template($('#locationPlotTemplate').html());
-			var templatedLocationInfo = locationInfoTemplate(location);
-			var templatedLocationPlot = locationPlotTemplate(PLACES[0].periods[5]);
-			var selectedPhotoURL;
+			var locationInfoTemplate, reviewTemplate, locationPlotTemplate, 
+				templatedLocationInfo, templatedLocationPlot, selectedPhotoURL;
+			
+			locationInfoTemplate = _.template($('#locationInfoTemplate').html());
+			reviewTemplate = _.template($('#reviewTemplate').html());
+			locationPlotTemplate = _.template($('#locationPlotTemplate').html());
+			templatedLocationInfo = locationInfoTemplate(location);
+			templatedLocationPlot = locationPlotTemplate(PLACES[0].periods[5]);
+			selectedPhotoURL;
 		
-			if(selectedLocation.photos){
-				selectedPhotoURL = selectedLocation.photos[0].getUrl({maxWidth:400});
+			if(APPX.selectedLocation.photos){
+				selectedPhotoURL = APPX.selectedLocation.photos[0].getUrl({maxWidth:400});
 			} else {
-				selectedPhotoURL = selectedLocation.icon;
+				selectedPhotoURL = APPX.selectedLocation.icon;
 			}
 
 			$('#locationInfoContainer').empty();
@@ -714,7 +780,7 @@ $(function(){
 		
 			drawPlot();
 			initClickables();
-			toPage('y',0,pages.diffH);
+			toPage('y');
 		
 		}catch(er){
 			console.error(er + ': showLocationInfo');
@@ -726,19 +792,23 @@ $(function(){
 		try{
 			console.log('entering: startVisit');
 			
+			var liveVisitTemplate, templatedLiveVisit;
+			
 			disableElement('startVisitButton');
 			
-			currentVisit.isActive = true;
-			currentVisit.place = selectedLocation;
-			currentVisit.startTime = new Date();
-			currentVisit.endTime = false;
-			currentVisit.bump = false;
-			currentVisit.review = false;
+			APPX.currentVisit = {
+				isActive:true,
+				place:APPX.selectedLocation,
+				startTime:new Date(),
+				endTime:false,
+				bump:false,
+				review:false
+			};
 		
-			var liveVisitTemplate = _.template($('#liveVisitTemplate').html());
-			var templatedLiveVisit = liveVisitTemplate(currentVisit);
-		
+			liveVisitTemplate = _.template($('#liveVisitTemplate').html());
+			templatedLiveVisit = liveVisitTemplate(APPX.currentVisit);
 			$('.setWrapper').append(templatedLiveVisit);
+			
 			$('#visitHeader').on('click',function(){
 				collapseVisit();
 			});
@@ -755,11 +825,13 @@ $(function(){
 	var collapseVisit = function(){
 		try{
 			console.log('entering: collapseVisit');
+			
+			var collapseHeight, collapseWidth, collapseTop, collapseLeft;
 		
-			var collapseHeight = 1.75; //in em
-			var collapseWidth = 10;    //in em
-			var collapseTop = $('.setWrapper').height() - collapseHeight*14 - 2 ; //in px
-			var collapseLeft = $('.setWrapper').width() - collapseWidth*14 - 2 ; //in px
+			collapseHeight = 1.75; //in em
+			collapseWidth = 10;    //in em
+			collapseTop = $('.setWrapper').height() - collapseHeight*14 - 2 ; //in px
+			collapseLeft = $('.setWrapper').width() - collapseWidth*14 - 2 ; //in px
 		
 			$('#liveVisit').animate({
 				height: collapseHeight + 'em',
@@ -785,14 +857,14 @@ $(function(){
 		try{
 			console.log('entering: expandVisit');
 			
-			$('#liveVisit').animate({
-				height:'90%',
-				width:'90%',
-				top:'5%',
-				left:'5%',
-			},500,function(){
-				$('#liveVisit *:not(#visitTitle,#visitShowHide,#visitHeader)').css('font','12px courier,monospace');
-			});
+			$('#liveVisit').animate(
+				{height:'90%', width:'90%', top:'5%', left:'5%'},
+				500,
+				function(){
+					$('#liveVisit *:not(#visitTitle,#visitShowHide,#visitHeader)').css('font','12px courier,monospace');
+				}
+			);
+			
 			$('#visitHeader').removeClass('visitCollapsed');
 			$('#visitHeader').addClass('visitExpanded');
 			$('#liveVisit').attr('opened','true');
@@ -811,7 +883,7 @@ $(function(){
 			console.log('entering: endVisit');
 			
 			$('#liveVisit').remove();
-			currentVisit = {isActive:false};
+			APPX.currentVisit = {isActive:false};
 			enableElement('startVisitButton');
 	
 		}catch(er){
@@ -824,21 +896,23 @@ $(function(){
 		try{
 			console.log('entering: drawPlot');
 			
-			var cWidth = $('#dataPlot').attr('width');
-			var cHeight = $('#dataPlot').attr('height');
-			var day = PLACES[0].periods[5].hours;
-			var HinD = day.length; //should be 24
-			var peak = 0;
-			var current = {};
-			var next = {};
-			var mid = {};
+			var cWidth, cHeight, day, HinD, peak, current, next, mid, canvas, ctx;
+			
+			cWidth = $('#dataPlot').attr('width');
+			cHeight = $('#dataPlot').attr('height');
+			day = PLACES[0].periods[5].hours;
+			HinD = day.length; //should be 24
+			peak = 0;
+			current = {};
+			next = {};
+			mid = {};
 		
 			for(var h = 0; h < HinD; h++){
 				peak = day[h].tot > peak ? day[h].tot : peak;
 			}
 		
-			var canvas = document.getElementById('dataPlot');
-			var ctx = canvas.getContext('2d');
+			canvas = document.getElementById('dataPlot');
+			ctx = canvas.getContext('2d');
 			ctx.lineWidth = 8;
 			ctx.beginPath();
 			ctx.moveTo(0,cHeight);
@@ -887,9 +961,11 @@ $(function(){
 		try{
 			console.log('entering: locationInfoScrollHandler');
 			
-			var w = $('.locationInfoSet').width();
-			var posX = $('.locationInfoSet').offset().left;
-			var posXNew;
+			var w, posX, posXNew;
+			
+			w = $('.locationInfoSet').width();
+			posX = $('.locationInfoSet').offset().left;
+			posXNew;
 			if(posX > -w/8){
 				posXNew = 0;
 			}else if(posX > (-3*w)/8){
