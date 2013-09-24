@@ -374,6 +374,9 @@ $(function(){
 			var len = APPX.listedLocations.length;
 			
 			for(var index = 0; index < len; index++){
+				if(APPX.listedLocations[index].vicinity === undefined){
+					APPX.listedLocations[index].vicinity = APPX.listedLocations[index].formatted_address;
+				}
 				if(APPX.listedLocations[index].opening_hours === undefined){
 					APPX.listedLocations[index].opening_hours = {open_now:'?'};
 				}
@@ -472,6 +475,22 @@ $(function(){
 		}
 	};
 	
+	//callback function for google nearby search and TextSearch
+	var searchSuccessCallback = function(data,status){
+		try{
+			console.log('entering: searchSuccessCallback');
+			
+			endLoading();
+			enableElement('set');
+			APPX.listedLocations = data;
+			fixResults();
+			showResults(APPX.listedLocations,'nearby');
+			
+		}catch(er){
+			console.error(er + ': searchSuccessCallback')
+		}
+	};
+	
   //Get Google places info: locations nearby user location
   $('#nearbySearch').click(function() {
 		var searchOptions = {	
@@ -483,16 +502,7 @@ $(function(){
 		disableElement('set');
 		showLoading();
     
-		APPX.services.placeService.nearbySearch(
-			searchOptions, 
-      function(data,status) {
-				endLoading();
-				enableElement('set');
-				APPX.listedLocations = data;
-				fixResults();
-				showResults(APPX.listedLocations,'nearby');
-			}
-		);
+		APPX.services.placeService.nearbySearch(searchOptions, searchSuccessCallback);
   });
 	
 	var initClickables = function(){
@@ -521,45 +531,73 @@ $(function(){
 	};
 	initClickables();
 	
+	// check the given string for words that are in the keyWords Library, returns true if any words match a keyword
+	// (this should probbably be an call to an API, but for now this works)
+	var checkKeyWords = function(searchString){
+		try{
+			console.log('entering: checkKeyWords');
+			
+			var wordsArray, waLen, kwLen, isTextSearch, currentLower;
+			 
+			wordsArray = searchString.split(' ');
+			waLen = wordsArray.length;
+			kwLen = TEXTSEARCH.length;
+			isTextSearch = false;
+			
+			for(var waI = 0; waI < waLen; waI++){
+				currentWordLower = wordsArray[waI].toLowerCase();
+				for(var kwI = 0; kwI < kwLen; kwI++){
+					if(currentWordLower === TEXTSEARCH[kwI].word){
+						isTextSearch = true;
+					} 
+				}	
+			}
+			
+			return isTextSearch;
+			
+		}catch(er){
+			console.log(er + ': checkKeyWords');
+		}
+	};
+	
 	//Get Google places info: specified location
 	$('#otherSearch input').change(function() {
+		
+		disableElement('set');
+		showLoading();
 		
 		$("html, body").animate({ scrollTop: $('#set').offset().top,
 		 													scrollLeft: $('#set').offset().left }, 100);
 
 		var address = $(this).val();
 		
-		disableElement('set');
-		showLoading();
-		
-		APPX.services.geocoder.geocode(
-			{'address':address}, 
-			function(data,status){
-				
-				var there, searchOptions;
+		if(checkKeyWords(address)){
 			
-				there = data[0].geometry.location;
-				
-				searchOptions = {
-					location: there,
-					rankBy:google.maps.places.RankBy.DISTANCE,
-					types:['bakery','bar','cafe','restaurant']
-				};
-				
-	  		APPX.services.placeService.nearbySearch(
-					searchOptions, 
-	      	function(data,status) {
-						
-						endLoading();
-						enableElement('set');
-						APPX.listedLocations = data;
-						fixResults();
-						showResults(APPX.listedLocations,'other');
-	      	
-					}
-				);
+			var searchOptions = {
+				query:address,
 			}
-		);
+			APPX.services.placeService.textSearch(searchOptions, searchSuccessCallback);
+			
+		}else{
+		
+			APPX.services.geocoder.geocode(
+				{'address':address}, 
+				function(data,status){
+				
+					var there, searchOptions;
+			
+					there = data[0].geometry.location;
+				
+					searchOptions = {
+						location: there,
+						rankBy:google.maps.places.RankBy.DISTANCE,
+						types:['bakery','bar','cafe','restaurant']
+					};
+				
+					APPX.services.placeService.nearbySearch(searchOptions, searchSuccessCallback);
+				}
+			);
+		}
 	});
 	
 	//adds events for selecting a location from the search results
