@@ -275,6 +275,8 @@ $(function(){
 		try{
 			console.log('entering: verticalScrollInit');
 		
+			$('#' + id).css({top:0,left:0}); // to make sure the scroll spans only the results, nothing outside 
+		
 			var offs = $('#' + id).offset();
 			
 			if(h > wrapH){
@@ -531,6 +533,34 @@ $(function(){
 	};
 	initClickables();
 	
+	// selects the next place
+	var nextPlaceHandler = function(){
+		try{
+			console.log('entering: nextPlaceHandler');
+			
+			if(APPX.listedLocations === undefined){
+				return;
+			}
+			
+			if($('.selectedLocation')[0] === undefined){
+				$('#listedLocation_0').trigger('click');
+			}else{
+				var nextIndex = getIndexById($('.selectedLocation').attr('id'));
+				nextIndex++;
+				if(nextIndex < APPX.listedLocations.length){
+					$('#listedLocation_' + nextIndex).trigger('click');
+				}else{
+					$('#listedLocation_0').trigger('click');
+				}
+			}
+		}catch(er){
+			console.error(er + ': nextPlaceHandler');
+		}
+	};
+	$('.nextPlace').click(function(){
+		nextPlaceHandler();
+	});
+	
 	// check the given string for words that are in the keyWords Library, returns true if any words match a keyword
 	// (this should probbably be an call to an API, but for now this works)
 	var checkKeyWords = function(searchString){
@@ -631,6 +661,7 @@ $(function(){
 						}
 					);		
 				}
+				return false;
 			});
 		}catch(er){
 			console.error(er + ': addSelectListedLocationEvents');
