@@ -117,7 +117,7 @@ $(function(){
 			eH = e.outerHeight();
 			parH = e.parent().outerHeight();
 			eTop = (parH - eH)/2;
-			eTop = eTop > 0 ? eTop : 0;
+			//eTop = eTop > 0 ? eTop : 0;
 			e.css('top',eTop);
 		
 		}catch(er){
@@ -816,23 +816,63 @@ $(function(){
 			console.log('entering: showLocationInfo');
 			
 			var locationInfoTemplate, reviewTemplate, locationPlotTemplate, 
-				templatedLocationInfo, templatedLocationPlot, selectedPhotoURL;
+				templatedLocationInfo, templatedLocationPlot, imgInsert;
 			
 			locationInfoTemplate = _.template($('#locationInfoTemplate').html());
 			reviewTemplate = _.template($('#reviewTemplate').html());
 			locationPlotTemplate = _.template($('#locationPlotTemplate').html());
 			templatedLocationInfo = locationInfoTemplate(location);
 			templatedLocationPlot = locationPlotTemplate(PLACES[0].periods[5]);
-			selectedPhotoURL;
-		
+			
+			//get photo urls and insert into photo container
+			var photoContainerWidth = $('.locationPhotoContainer').width();
+			var photoContainerHeight = $('.locationPhotoContainer').height();
+			
+			$('.locationPhotoContainer').empty();
+			$('.locationPhotoContainer').append('<div class="ycontent locationPhotoWrapper"></div>');
+			
 			if(APPX.selectedLocation.photos){
-				selectedPhotoURL = APPX.selectedLocation.photos[0].getUrl({maxWidth:400});
+				var pLen = APPX.selectedLocation.photos.length;
+				$('.locationPhotoWrapper').css({
+					top:0,
+					left:0,
+					width:photoContainerWidth*pLen
+				});
+				for(var pIndex = 0; pIndex < pLen; pIndex++){
+					APPX.selectedLocation.photos[pIndex].pURL = APPX.selectedLocation.photos[pIndex].getUrl({maxWidth:400});
+					imgInsert = '<img src="' + APPX.selectedLocation.photos[pIndex].pURL + '" class="locationPhoto" id="locationPhoto_' + pIndex + '"></img>';
+					$('.locationPhotoWrapper').append(imgInsert);
+					$('#locationPhoto_' + pIndex).css({
+						width:photoContainerWidth*.98,
+						top:photoContainerHeight*.01,
+						left:photoContainerWidth*(pIndex+.01),
+					});
+					$('#locationPhoto_' + pIndex).on('load', function() {
+						vCenterInit($(this));
+					});
+				}
+				$('.locationPhotoWrapper').draggable({
+					scroll:false,
+					axis:'x',
+					stop:photoDragStopHandler
+				});
 			} else {
-				selectedPhotoURL = APPX.selectedLocation.icon;
+				$('.locationPhotoWrapper').css({
+					top:0,
+					left:0,
+					width:photoContainerWidth
+				});
+				imgInsert = '<img src="' + APPX.selectedLocation.icon + '" class="locationPhoto" id="locationPhoto_0"></img>';
+				$('.locationPhotoWrapper').append(imgInsert);
+				$('#locationPhoto_0').on('load', function() {
+					vCenterInit($(this));
+					$('.locationPhotoWrapper').css('text-align','center');
+				});
 			}
-
+			
+			// end of photo insert
+			
 			$('#locationInfoContainer').empty();
-			$('.locationPhoto').attr('src',selectedPhotoURL)
 			$('#locationInfoContainer').append(templatedLocationInfo);
 			for(var rIndex = 0; rIndex < location.reviews.length; rIndex++){
 				$('#locationInfoContainer .locationInfoSet .locationReviewInfo').append(reviewTemplate(location.reviews[rIndex]));
@@ -853,6 +893,29 @@ $(function(){
 		
 		}catch(er){
 			console.error(er + ': showLocationInfo');
+		}
+	};
+	
+	var photoDragStopHandler = function(){
+		try{
+			console.log('entering: photoDragStopHandler');
+			
+			var wWidth = $('.locationPhotoWrapper').width();
+			var cWidth = $('.locationPhotoContainer').width();
+			var posNow = $('.locationPhotoWrapper').position().left;
+			var pIndex = Math.floor((-posNow)/cWidth + .5);
+			if(pIndex < 0){
+				pIndex = 0;
+			}else if(pIndex >= wWidth/cWidth){
+				pIndex = Math.round(wWidth/cWidth) - 1;
+			}
+			
+			$('.locationPhotoWrapper').animate({
+				left:-$('#locationPhoto_' + pIndex).position().left + cWidth*.01
+			},200);
+			
+		}catch(er){
+			console.error(er + ': photoDragStopHandler');
 		}
 	};
 	
